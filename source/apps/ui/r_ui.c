@@ -356,16 +356,19 @@ Public functions
 void R_UI_Init(void)
 {
     
- 
+#if 0 
     R_LED_PwmInit();
     R_LED_RingInit();
     R_userInput_init();
+#endif
     R_UART_Init();
 
+#if 0
     R_DISPLAY_ResetRelease();
     R_DISPLAY_Init();
     R_DISPLAY_StartScreen();
     r_menu_init(&mainMenu);
+#endif
     g_UiStatus.DisplayMode=R_UiDisplayStartup;
 
 
@@ -385,7 +388,7 @@ void R_UI_Init(void)
         R_UART_SendString("\n\rHello World!!!\n\r");
         R_UART_SendString("U2A Starterkit\n\r");
         
-        R_LED_RingUpdate(0x0000);   // Set all LEDs off
+        //R_LED_RingUpdate(0x0000);   // Set all LEDs off
 
         /* Initial setting of the RGB Encoder Button to off. */
         R_LED_SetPwmDuty(LEDR,0); /* Set value for red LED */

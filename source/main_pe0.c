@@ -60,11 +60,12 @@ static uint64_t task_time;
 * Return Value : None
 * Notes       : - Used for system-wide timing and task scheduling
 ***********************************************************************************************************************/
+#if 0
 void callback_1ms(void)
 {
     g_SystemStatus.RunTimeMs++;
 }
-
+#endif
 /***********************************************************************************************************************
 * Function Name: Pe0PeripheralInit
 * Description  : Initializes core peripherals for PE0 processor
@@ -76,8 +77,8 @@ void callback_1ms(void)
 void Pe0PeripheralInit(void)
 {
     R_OSTM0_Create();    /* Initialize 1ms system timer */
-    R_LIN_Init();        /* Initialize Local Interconnect Network */
-    R_CANFD_Init();      /* Initialize CAN-FD communication */
+//    R_LIN_Init();        /* Initialize Local Interconnect Network */
+//    R_CANFD_Init();      /* Initialize CAN-FD communication */
 }
 
 /***********************************************************************************************************************
@@ -121,6 +122,7 @@ void Pe0SystemStatusInit(void)
 *             : - Initializes peripherals and enables interrupts
 *             : - Sets up UART shell interface
 ***********************************************************************************************************************/
+#if 0
 int main(int argc, char *argv[])
 {
     /* Ensure multi-core synchronization */
@@ -168,7 +170,7 @@ int main(int argc, char *argv[])
     /* should never reach this point */
     while(1);                          
 }
-
+#endif
 /***********************************************************************************************************************
 * Function Name: loop
 * Description  : Main system task loop, called by shell handler
@@ -177,6 +179,7 @@ int main(int argc, char *argv[])
 ***********************************************************************************************************************/
 void loop(void){
 
+#if 0
     /* Check if 1ms has elapsed since last task execution */
     if(g_SystemStatus.RunTimeMs>task_time)
     {
@@ -188,5 +191,6 @@ void loop(void){
         R_UI_DisplayMenuTask();  /* Update display menu */
         R_userInput_handler();   /* Process user inputs */
     }
-    
+#endif
+
 }

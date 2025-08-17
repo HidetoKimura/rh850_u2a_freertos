@@ -1,0 +1,38 @@
+#!gbuild
+[MultiCoreArchive]
+	-Omaxdebug
+	-common "{ -e _RESETVECT -g --preprocess_linker_directive_full -Mn -init_ram_at_startup }"
+	-Mx
+	-large_sda
+	-large_zda
+	-shorten_loads
+	-shorten_moves
+	{optgroup=GCoresOptions} -srec
+	-shared_imports
+	-init_ram_at_startup
+	-DNCORES=4
+	-D__U2A__=1
+	{optgroup=GCoresOptions} -o Y-ASK-RH850U2A16.mca
+	-nothreshold
+	:sourceDir=.
+	:sourceDir=device
+	:sourceDir=..\..\..\source
+	-I..\..\..\source
+	-I..\..\..\source\inc
+	-I..\..\..\source\drivers\U2A16_SmartConfigurator
+	-I..\..\..\source\drivers\U2A16_SmartConfigurator\SmartConfigurator\general
+	-I..\..\..\source\drivers\U2A16_SmartConfigurator\SmartConfigurator\r_pincfg
+	-cross_core_imports
+linkmap\dr7f702300b_mc.ld
+Y-ASK-RH850U2A16.con
+device\deviceheader.gpj
+shared\shared.gpj		[SharedMemory]
+pe0\pe0.gpj		[Core]
+pe1\pe1.gpj		[Core]
+pe2\pe2.gpj		[Core]
+pe3\pe3.gpj		[Core]
+out\shared.map
+out\pe0.map
+out\pe1.map
+out\pe2.map
+out\pe3.map

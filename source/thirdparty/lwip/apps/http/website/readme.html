@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>RH850/U2A Starterkit Virualized Webserver Demo </title>
+
+    <!-- Bootstrap core CSS -->
+
+   
+
+<body >
+	
+
+	<img src="fs.u2a/logo_renesas.png" alt="Rensas"> 
+	<br> _____________________________________</br>
+	<h2>
+		Y-ASK-RH850-U2A16 StarterKit Virtualiztion Demo<sup>(TM)</sup>
+	</h2>
+    
+    <!-- VM_information -->
+
+
+<p>Author: Thomas.Mueller@renesas.com<br />
+Date: 2020/05/19<br />
+Update: 2023/03/<span lang="de">21</span><br />
+Version: E2.02</p>
+
+<p>
+<br /><h2>Virtual Machine Test and Implementation</h2>
+<dl>
+	<dt>Tools</dt>
+	<dd>- GHS toolchain V2019.1, V2020.1, V2021.1 and V2023.1</dd>
+	<dd>- Renesas E2 emulator or other is recommended</dd>
+
+	<br/><dt>General</dt>
+	<dd>- As this software is a sample implementation only, please do <strong>not</strong> update </dd>
+	<dd>  any file in this sample project with any released module found in </dd>
+	<dd>  the generic device file package release.</dd>
+
+	<br/><dt>Note(s)</dt>
+	<dd>- This is <strong>not</strong> a complete hypervisor. The sample is focussed more on</dd>
+	<dd>  the physical side of VM handling and works on VM monitoring level.</dd>
+</dl>
+
+<p>
+<br /><h3>Debugging</h3>
+<ul>
+ <li>Not all VMs may work all the time, instead they may generate (intended)<br />
+ system or access errors and are removed from scheduling by error <br />
+ handler. This is intended behavior by setting the variable &quot;ErrorInject&quot;<br />
+ to a value different from 0 in each particular virtual machine.<br /></li>
+ <li>In GHS Multi debugger, the VM manager is loaded in the first instance<br />
+ and the externaly built VMs are loaded AFTER the VMM &quot;MCA_VM4&quot; is loaded.<br />
+ For details, please look at the start-up script &quot;vmm.rc&quot;.</li>
+</ul>
+</p>
+
+<br /><p>
+<h3>Outline</h3>
+<ul>
+<li>Ulitizing 4 physical Cores PE0...PE3</li><ul><li>Each core with its local propietary interrupt handling table<br /></li>
+ <li>Using extended interrupt configration only<br></li>
+</ul>
+
+<li>12 VMs (3/core including 1 idle virtual task)</li><ul><li>The COM VM is a special VM sharing identical code and RAM on all PEs <br />
+ running it.<br></li>
+</ul>
+
+<li>Single, shared initialization </li>
+<ul>
+ <li>call back functionality to realize core specific initialization.<br /></li>
+ <li>Startup with H/W BARRIER synchronization of G4MH<br /></li>
+ <li>Initialization of shared memory regions according to GHS start-up library</li>
+ <br>
+</li>
+</ul>
+
+<li>Discrete <b>V</b>irtual <b>M</b>achine <b>M</b>onitor (VMM/core) </li>
+
+<li>Timer based round robin scheduling</li><ul><li>TAUD0 is used to generate local interrupts on ALL cores (EIINT10) every 1 ms</li>
+    <li>HVTRAP is implemented for additional scheduling features, a task may call rescheduling, 
+        when it is finished<br></li>
+</ul>
+
+
+<li>One or more BG interrupt(s) for each core realized ...  </li>
+
+<li>MPU is handled for each core and VM</li><ul><li>local RAM protection <br /></li>
+ <li>global RAM area protection<br /></li>
+ <li>Flash area protection for both, code and constant data<br /></li>
+ <li>Idle VM task is shared and embedded in main program flow, ie. code sharing/VM<br></li>
+</ul>
+
+<li>Simple LED port driver
+</li>
+
+<li>Peripheral Bus Guard is configured to protect </li>
+<ul><li>TAUD0 access<br /></li>
+ <li>OSTM0...9 access<br /></li>
+ <li>ETNBn<br /></li>
+ <li>RLIN3<br></li>
+</ul>
+
+<li>Simple ECM driver with interrupt handling (EIINT8) on single core PE0</li><ul><li>EIINT handles interrupts according to the interrupt configuration register<br></li>
+</ul>
+
+<li>inter-processor interrupt implementation of PE0 -> PE1, PE2 or PE3</li><ul><li>Basically done<br />
+ <li>logical handling of IPIR channels done in module ipir.c <br> </li>
+</ul>
+
+<li>Command Buffer implementation PE0 to PE1, PE2 or PE3 </li>
+
+<li>Shutdown of VMs, respectively SPIDs reporting an infringement of the security (ECM unit) </li>
+
+<li>Implemented an embedded scheduler (FreeRTOS) as virtual O/S </li>
+</ul>
+
+<br /><h3>
+TBD</h3>
+=> inter-processor interrupt requires fine tuning to handle RESTART command<br />
+=> Adding User mode for each VM</p>
+
+<br /><p><h3>
+Details </h3>
+<h4>GPID distribution</h4>
+ GPID information has 3 bits/ core */<br />
+ Therefore 5-bit SPID calculates by PE number and GPID */<br />
+<p style="font-family: Courier">
+ <table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 width=642
+ style='width:481.7pt;border-collapse:collapse;mso-yfti-tbllook:1184;
+ mso-padding-alt:0cm 0cm 0cm 0cm'>
+     <tr style='mso-yfti-irow:1'>
+       <th>PE# </th>
+       <th>GPID2</th>
+       <th>GPID1</th>
+       <th>GPID0 </th>
+       <th>Comment </th>
+     </tr>
+     <tr style='mso-yfti-irow:1'>
+       <td align=center>0</td>
+       <td align=center>0</td>
+       <td align=center>0</td>
+       <td align=center>0</td>
+       <td align=left>SPID: 0 for HV Level in PE0</td>
+     </tr>
+
+     <tr style='mso-yfti-irow:1' align=center>
+       <td>1</td>
+       <td>0</td>
+       <td>0</td>
+       <td>0</td>
+       <td align=left>SPID: 1 for HV Level in PE1</td>
+     </tr>
+
+     <tr style='mso-yfti-irow:1' align=center>
+       <td>2</td>
+       <td>0</td>
+       <td>0</td>
+       <td>0</td>
+       <td align=left>SPID: 2 for HV Level in PE2</td>
+     </tr>
+
+     <tr style='mso-yfti-irow:1' align=center>
+       <td>3</td>
+       <td>0</td>
+       <td>0</td>
+       <td>0</td>
+       <td align=left>SPID: 3 for HV Level in PE3</td>
+     </tr>
+  </table>
+ </p>
+
+<p><br/></p>
+
+<p><br />
+ <h4>SPIDs used by VMs</h4>
+ <tr>Calculated by MKSPID( peid, gpid) with SPID=(peid+) + (peid+4*gpid)<br/>
+      Note: VM#3 is virtual COM reserved SPID (always 12) on every core in this system</tr>
+
+</p>
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=3 width=0 >
+<tr align=center> <th>PE</th>  <th>SPID#(GPID=0)</th> <th>VM0 SPID</th> <th>VM1 SPID</th> <th>VM2 SPID</th></tr>
+<tr align=center> <td>PE0</td> <td>0</td>     <td>4</td>        <td>8</td>        <td>12</td> </tr>
+<tr align=center> <td>PE1</td> <td>1</td>     <td>5</td>        <td>9</td>        <td>13</td> </tr>
+<tr align=center> <td>PE2</td> <td>2</td>     <td>6</td>        <td>10</td>       <td>14</td> </tr>
+<tr align=center> <td>PE3</td> <td>3</td>     <td>7</td>        <td>11</td>       <td>15</td> </tr>
+</p>
+</table>
+
+<p><br/></p>
+<p><h4>List Of active VMs</h4></p>
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=5 width=0 >
+<p>
+<tr> <th>PE#</th><th>VM#</th><th>GPID# </th><th>Name</th> <th>Interrupt Resource</th></tr>
+<tr> <td align=right>PE0</td><td align=left>VM0</td><td align=center>GPID_1</td><td align=center>&quot;ETH-DEMO&quot; </td> <td align=left>
+		<dt>INTOSTM1TINT</dt>
+		<dt>INTETNB0DATA</dt></td></tr>
+<tr> <td align=right>PE0</td><td align=left>VM1</td><td align=center>GPID_2</td><td align=center>&quot;RLIN3&quot;    </td> <td align=left>
+		<dl><b>RLIN39</b>
+ <dt>- RLIN39UR0</dt>
+ <dt>- RLIN39UR1</dt>
+ <dt>- RLIN39UR2</dt></dl>
+		<dl><b>Temperature Sensor</b>
+ <dt>- INTOTSOTE</dt> 
+ <dt>- INTOTSOTI</dt>
+ <dt>- INTOTSOTULI</dt></dl></td> </tr>
+<tr> <td align=right>PE0</td><td align=left>VM2</td><td align=center>GPID_3</td><td align=center>&quot;COM&quot;      </td> <td align=left>---</td> </tr>
+
+<tr> <td align=right>PE1</td><td align=left>VM0</td><td align=center>GPID_1</td><td align=center>&quot;SIEVE&quot;    </td> <td align=left>INTOSTM2TINT</td> </tr>
+<tr> <td align=right>PE1</td><td align=left>VM1</td><td align=center>GPID_2</td><td align=center>&quot;FREE-RTOS&quot;</td> <td align=left>INTOSTM7TINT</td> </tr>
+<tr> <td align=right>PE1</td><td align=left>VM2</td><td align=center>GPID_3</td><td align=center>&quot;COM&quot;      </td> <td align=left>---</td> </tr>
+     
+<tr> <td align=right>PE2</td><td align=left>VM0</td><td align=center>GPID_1</td><td align=center>&quot;SHA256&quot;</td> <td align=left>INTOSTM3TINT</td> </tr>
+<tr> <td align=right>PE2</td><td align=left>VM1</td><td align=center>GPID_2</td><td align=center>&quot;DHRY21&quot;</td> <td align=left>INTOSTM4TINT</td> </tr>
+<tr> <td align=right>PE2</td><td align=left>VM2</td><td align=center>GPID_3</td><td align=center>&quot;COM&quot;   </td> <td align=left>---</td> </tr>         
+     
+<tr> <td align=right>PE3</td><td align=left>VM0</td><td align=center>GPID_1</td><td align=center>&quot;FFT&quot;</td><td align=left>INTOSTM5TINT</td> </tr>
+<tr> <td align=right>PE3</td><td align=left>VM1</td><td align=center>GPID_2</td><td align=center>&quot;AES&quot;</td><td align=left>INTOSTM6TINT</td> </tr>
+<tr> <td align=right>PE3</td><td align=left>VM2</td><td align=center>GPID_3</td><td align=center>&quot;COM&quot;</td><td align=left>---</td> </tr>         
+</p>
+</table>
+
+
+<br /><p> <h3>
+Changelog</h3>
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=5 width=0 >
+  <tr> <td>E2.02</td>
+       <td>Added assembler based HV layer to maintain C compatibility of HV handlers.
+       </td></tr>
+  <tr> <td>E2.01</td>
+       <td>Single Build to set up the VMM and Virtual Machines <br />
+           New SPID layout using the default scheme after RESET<br />
+	   Added assembler based HV layer to maintain C compatibility of HV handlers.
+	  </td></tr>
+  <tr> <td>E2.00</td><td>Only one module in shared flash area is now handling the HV layer <br />
+    This prevents the use of small data addressing mode, but the entire module is using pointer <br />
+    only. <br /></td></tr>
+  <tr> <td>E1.39</td><td>Implementing dedicated HV stack </td></tr>
+  <tr> <td>E1.38</td><td>Adding Temperature sensor to command interface </td></tr>
+  <tr> <td>E1.37</td><td>Implemention of SmartConfigurator's UART solution <br \>
+		  Start of serial terminal and command I/F driven by COM process</td></tr>
+  <tr> <td>E1.36</td><td>Changing interrupts from channel number handling to clear names <br />
+    For example EIINT199 becomes now INTOSTM0TINT. The mechanism is: <br />
+      R_EIINT(INTOSTM0TINT)(void) instead of EIINT199(void)  <br />
+    The SFR access to INTC controller is: <br />
+      R_EIC(INTOSTM0TINT) = value  <br />
+      R_EEIC(INTOSTM0TINT) = value  <br />
+      R_EIBD(INTOSTM0TINT) = value  <br /> </td></tr>
+  <tr> <td>E1.35</td><td>Reorganization: Physical access to SFR registers are now placed in shared folder <br />
+    Placed global algorithms in shared folder <br />
+    Requires adapation of test programs and directory structures, too. </td></tr>
+
+  <tr><td>E1.34<td>Directory Structure Change<br />
+    VMM is now allocated under directory VMM<br />
+    All is now able being build under Linux by changing the backslash directory to linux style format.</td></tr>
+
+  <tr><td>E1.33</td><td>Renamed IDLE VMs to COM to assign interVM communication<br />
+   Merged two separated PEn specific initialization structures to one<br />
+   global dimensional array.<br />
+   New VMs on PE0:<br />
+   VM1 with ethernet web server/tcp/ping client and <br />
+   VM2 utilizing RLIN3/ USB serial communication.</td></tr>
+  
+  <tr><td>E1.32</td><td>New VM on PE0 handling the ASMN implementation using webserver and RLIN communication.</td></tr>
+  
+  <tr><td>E1.31</td><td>Implemented FreeRTOS virtualized on PE1, GPID 2.</td></tr>
+  
+  <tr><td>E1.30</td><td>New inititialization structure<br />
+   Each core is using SELFRam, reading the entries based on the structure in VMCONFIG<br />
+   holding all the basic parameters. This makes it possible that every VMM of each PE<br />
+   is using the same initialization code and and interrupt handling.</td></tr>
+  
+  <tr><td>E1.30</td><td>New MPU structure <br />
+   Resulting in fixed size of entries 0...19 for guest mode and 20...31 for host mode<br />
+   less registers are to be saved/restored in expcetion handlers.  <br />
+   HV interrupt low level handler<br />
+   The interrupt services handled by VMM in host mode will now restore the GP registers<br />
+   in order to have more efficient SDA handling and to imrove code execution.<br />
+   Callback implementation<br />
+   Is now based on GPID and SPID to enable fine granulated initialisation of peripheral <br />
+   devices and possibly Guard/MPU settings.</td></tr>
+  
+  <tr><td>E1.21</td><td>Integrates 100MB ethernet I/F<br />
+   The integration is implemented in PE0/VM0. <br />
+  </td></tr>
+  
+  <tr><td>E1.20</td><td>Changed behavior of EIBGNT handler, now multiple background interrupts are possible.</td></tr>
+
+</table>
+
+<footer class="w3-container w3-rblue w3-center w3-margin-top w3-text-white">
+<p>Renesas Electronics Europe</p>
+<p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+</footer>
+
+</body>
+</html>

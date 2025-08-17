@@ -1,0 +1,11 @@
+#!gbuild
+[Subproject]
+	--diag_suppress 549,177
+diskio.c
+diskio.h
+ff.c
+ff.h
+ffconf.h
+ffsystem.c
+ffunicode.c
+

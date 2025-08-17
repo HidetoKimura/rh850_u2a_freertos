@@ -1,0 +1,7 @@
+#!gbuild
+[Subproject]
+	-I..\..\..\source\thirdparty\lwip\include
+	-I..\..\..\source\thirdparty\lwip
+r_eth.c
+
+

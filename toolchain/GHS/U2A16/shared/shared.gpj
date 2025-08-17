@@ -1,0 +1,13 @@
+#!gbuild
+macro targetCore=shared
+[SharedMemory]
+	-object_dir=objs\shared
+apps\apps.gpj
+modules\modules.gpj
+drivers\drivers.gpj
+lowsrc\coldreset.850
+lowsrc\ghlock.c
+lowsrc\lowinit.c
+lowsrc\rhlock.850
+shared.c
+shared.h

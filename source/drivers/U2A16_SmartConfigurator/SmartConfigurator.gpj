@@ -1,0 +1,72 @@
+#!gbuild
+[Subproject]
+        -ISmartConfigurator/ADCJ1
+        -ISmartConfigurator/ADCJ2
+        -ISmartConfigurator/general
+        -ISmartConfigurator/INTC
+        -ISmartConfigurator/MSPI30
+        -ISmartConfigurator/OSTM0
+        -ISmartConfigurator/PORT
+        -ISmartConfigurator/RIIC0
+        -ISmartConfigurator/RLIN39
+        -ISmartConfigurator/r_pincfg
+        -ISmartConfigurator/STBC
+        -ISmartConfigurator/TAUD0
+        -object_dir=objs/SmartConfigurator
+SmartConfigurator/ADCJ1/ADCJ1.c
+SmartConfigurator/ADCJ1/ADCJ1.h
+SmartConfigurator/ADCJ1/ADCJ1_user.c
+SmartConfigurator/ADCJ2/ADCJ2.c
+SmartConfigurator/ADCJ2/ADCJ2.h
+SmartConfigurator/ADCJ2/ADCJ2_user.c
+SmartConfigurator/general/r_cg_ad.h
+SmartConfigurator/general/r_cg_ad_common.c
+SmartConfigurator/general/r_cg_ad_common.h
+SmartConfigurator/general/r_cg_cgc.c
+SmartConfigurator/general/r_cg_cgc.h
+SmartConfigurator/general/r_cg_cgc_user.c
+SmartConfigurator/general/r_cg_macrodriver.h
+SmartConfigurator/general/r_cg_mspi.h
+SmartConfigurator/general/r_cg_mspi_common.c
+SmartConfigurator/general/r_cg_mspi_common.h
+SmartConfigurator/general/r_cg_mspi_common_user.c
+SmartConfigurator/general/r_cg_ostm.h
+SmartConfigurator/general/r_cg_port.h
+SmartConfigurator/general/r_cg_riic.h
+SmartConfigurator/general/r_cg_stbc.h
+SmartConfigurator/general/r_cg_taud.h
+SmartConfigurator/general/r_cg_tauj.h
+SmartConfigurator/general/r_cg_uart.h
+SmartConfigurator/general/r_cg_userdefine.h
+SmartConfigurator/general/r_smc_entry.h
+SmartConfigurator/general/r_smc_interrupt.c
+SmartConfigurator/general/r_smc_interrupt.h
+SmartConfigurator/INTC/INTC.c
+SmartConfigurator/INTC/INTC.h
+SmartConfigurator/INTC/INTC_user.c
+SmartConfigurator/MSPI30/MSPI30.c
+SmartConfigurator/MSPI30/MSPI30.h
+SmartConfigurator/MSPI30/MSPI30_user.c
+SmartConfigurator/OSTM0/OSTM0.c
+SmartConfigurator/OSTM0/OSTM0.h
+SmartConfigurator/OSTM0/OSTM0_user.c
+SmartConfigurator/PORT/PORT.c
+SmartConfigurator/PORT/PORT.h
+SmartConfigurator/PORT/PORT_user.c
+SmartConfigurator/RIIC0/RIIC0.c
+SmartConfigurator/RIIC0/RIIC0.h
+SmartConfigurator/RIIC0/RIIC0_user.c
+SmartConfigurator/RLIN39/RLIN39.c
+SmartConfigurator/RLIN39/RLIN39.h
+SmartConfigurator/RLIN39/RLIN39_user.c
+SmartConfigurator/r_pincfg/Pin.c
+SmartConfigurator/r_pincfg/Pin.h
+SmartConfigurator/STBC/STBC.c
+SmartConfigurator/STBC/STBC.h
+SmartConfigurator/STBC/STBC_user.c
+SmartConfigurator/TAUD0/TAUD0.c
+SmartConfigurator/TAUD0/TAUD0.h
+SmartConfigurator/TAUD0/TAUD0_user.c
+SmartConfigurator/TAUD2/TAUD2.c
+SmartConfigurator/TAUD2/TAUD2.h
+SmartConfigurator/TAUD2/TAUD2_user.c

@@ -1,0 +1,12 @@
+#!gbuild
+[Subproject]
+	:sourceDir=SmartConfigurator\general\
+{streq(targetCore,pe0)} r_cg_intvector_PE0.c
+{streq(targetCore,pe0)} r_cg_intc_PE0.c
+{streq(targetCore,pe1)} r_cg_intvector_PE1.c
+{streq(targetCore,pe1)} r_cg_intc_PE1.c
+{streq(targetCore,pe2)} r_cg_intvector_PE2.c
+{streq(targetCore,pe2)} r_cg_intc_PE2.c
+{streq(targetCore,pe3)} r_cg_intvector_PE3.c
+{streq(targetCore,pe3)} r_cg_intc_PE3.c
+r_smc_intprg.c

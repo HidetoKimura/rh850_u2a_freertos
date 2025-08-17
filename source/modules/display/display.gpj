@@ -1,0 +1,9 @@
+#!gbuild
+[Subproject]
+r_menu.c
+font12x16.h
+r_image.c
+r_image.h
+font5x7.h
+r_display.c
+r_display.h

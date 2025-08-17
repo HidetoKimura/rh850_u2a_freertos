@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- IAR Project Connection File -->
+<iarProjectConnection version="1.0" name="Renesas_SC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="IarProjectConnection_1.0.xsd">
+<includePath>
+    <path>$PROJ_DIR$\SmartConfigurator\ADCJ1</path>
+    <path>$PROJ_DIR$\SmartConfigurator\ADCJ2</path>
+    <path>$PROJ_DIR$\SmartConfigurator\general</path>
+    <path>$PROJ_DIR$\SmartConfigurator\INTC</path>
+    <path>$PROJ_DIR$\SmartConfigurator\MSPI30</path>
+    <path>$PROJ_DIR$\SmartConfigurator\OSTM0</path>
+    <path>$PROJ_DIR$\SmartConfigurator\PORT</path>
+    <path>$PROJ_DIR$\SmartConfigurator\RIIC0</path>
+    <path>$PROJ_DIR$\SmartConfigurator\RLIN39</path>
+    <path>$PROJ_DIR$\SmartConfigurator\r_pincfg</path>
+    <path>$PROJ_DIR$\SmartConfigurator\STBC</path>
+    <path>$PROJ_DIR$\SmartConfigurator\TAUD0</path>
+    <path>$PROJ_DIR$\SmartConfigurator\TAUD2</path>
+</includePath>
+<files>
+<group name="SmartConfigurator">
+    <group name ="ADCJ1">
+        <path>.\SmartConfigurator\ADCJ1\ADCJ1.c</path>
+    </group>
+    <group name ="ADCJ1">
+        <path>.\SmartConfigurator\ADCJ1\ADCJ1.h</path>
+    </group>
+    <group name ="ADCJ1">
+        <path>.\SmartConfigurator\ADCJ1\ADCJ1_user.c</path>
+    </group>
+    <group name ="ADCJ2">
+        <path>.\SmartConfigurator\ADCJ2\ADCJ2.c</path>
+    </group>
+    <group name ="ADCJ2">
+        <path>.\SmartConfigurator\ADCJ2\ADCJ2.h</path>
+    </group>
+    <group name ="ADCJ2">
+        <path>.\SmartConfigurator\ADCJ2\ADCJ2_user.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_ad.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_ad_common.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_ad_common.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_cgc.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_cgc.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_cgc_user.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intc.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intc_PE0.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intc_PE1.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intc_PE2.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intc_PE3.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intvector_PE0.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intvector_PE1.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intvector_PE2.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_intvector_PE3.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_macrodriver.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_main.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_mspi.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_mspi_common.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_mspi_common.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_mspi_common_user.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_ostm.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_port.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_riic.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_stbc.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_systeminit.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_taud.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_tauj.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_uart.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_cg_userdefine.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_smc_entry.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_smc_interrupt.c</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_smc_interrupt.h</path>
+    </group>
+    <group name ="general">
+        <path>.\SmartConfigurator\general\r_smc_intprg.c</path>
+    </group>
+    <group name ="INTC">
+        <path>.\SmartConfigurator\INTC\INTC.c</path>
+    </group>
+    <group name ="INTC">
+        <path>.\SmartConfigurator\INTC\INTC.h</path>
+    </group>
+    <group name ="INTC">
+        <path>.\SmartConfigurator\INTC\INTC_user.c</path>
+    </group>
+    <group name ="MSPI30">
+        <path>.\SmartConfigurator\MSPI30\MSPI30.c</path>
+    </group>
+    <group name ="MSPI30">
+        <path>.\SmartConfigurator\MSPI30\MSPI30.h</path>
+    </group>
+    <group name ="MSPI30">
+        <path>.\SmartConfigurator\MSPI30\MSPI30_user.c</path>
+    </group>
+    <group name ="OSTM0">
+        <path>.\SmartConfigurator\OSTM0\OSTM0.c</path>
+    </group>
+    <group name ="OSTM0">
+        <path>.\SmartConfigurator\OSTM0\OSTM0.h</path>
+    </group>
+    <group name ="OSTM0">
+        <path>.\SmartConfigurator\OSTM0\OSTM0_user.c</path>
+    </group>
+    <group name ="PORT">
+        <path>.\SmartConfigurator\PORT\PORT.c</path>
+    </group>
+    <group name ="PORT">
+        <path>.\SmartConfigurator\PORT\PORT.h</path>
+    </group>
+    <group name ="PORT">
+        <path>.\SmartConfigurator\PORT\PORT_user.c</path>
+    </group>
+    <group name ="RIIC0">
+        <path>.\SmartConfigurator\RIIC0\RIIC0.c</path>
+    </group>
+    <group name ="RIIC0">
+        <path>.\SmartConfigurator\RIIC0\RIIC0.h</path>
+    </group>
+    <group name ="RIIC0">
+        <path>.\SmartConfigurator\RIIC0\RIIC0_user.c</path>
+    </group>
+    <group name ="RLIN39">
+        <path>.\SmartConfigurator\RLIN39\RLIN39.c</path>
+    </group>
+    <group name ="RLIN39">
+        <path>.\SmartConfigurator\RLIN39\RLIN39.h</path>
+    </group>
+    <group name ="RLIN39">
+        <path>.\SmartConfigurator\RLIN39\RLIN39_user.c</path>
+    </group>
+    <group name ="r_pincfg">
+        <path>.\SmartConfigurator\r_pincfg\Pin.c</path>
+    </group>
+    <group name ="r_pincfg">
+        <path>.\SmartConfigurator\r_pincfg\Pin.h</path>
+    </group>
+    <group name ="STBC">
+        <path>.\SmartConfigurator\STBC\STBC.c</path>
+    </group>
+    <group name ="STBC">
+        <path>.\SmartConfigurator\STBC\STBC.h</path>
+    </group>
+    <group name ="STBC">
+        <path>.\SmartConfigurator\STBC\STBC_user.c</path>
+    </group>
+    <group name ="TAUD0">
+        <path>.\SmartConfigurator\TAUD0\TAUD0.c</path>
+    </group>
+    <group name ="TAUD0">
+        <path>.\SmartConfigurator\TAUD0\TAUD0.h</path>
+    </group>
+    <group name ="TAUD0">
+        <path>.\SmartConfigurator\TAUD0\TAUD0_user.c</path>
+    </group>
+    <group name ="TAUD2">
+        <path>.\SmartConfigurator\TAUD2\TAUD2.c</path>
+    </group>
+    <group name ="TAUD2">
+        <path>.\SmartConfigurator\TAUD2\TAUD2.h</path>
+    </group>
+    <group name ="TAUD2">
+        <path>.\SmartConfigurator\TAUD2\TAUD2_user.c</path>
+    </group>
+</group>
+</files>
+</iarProjectConnection>

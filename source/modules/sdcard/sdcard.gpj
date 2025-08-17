@@ -1,0 +1,5 @@
+#!gbuild
+[Subproject]
+     -nothreshold
+r_SDIO.c
+r_SDIO.h

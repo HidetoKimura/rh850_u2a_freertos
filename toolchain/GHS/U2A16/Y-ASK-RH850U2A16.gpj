@@ -1,0 +1,18 @@
+#!gbuild
+macro targetDevice=U2A16
+primaryTarget=v800_standalone.tgt
+#component top_level_project
+[Project]
+	-bsp generic
+	-Idevice
+	-object_dir=objs
+	:binDir=out
+	{optgroup=GhsCommonOptions} -cpu=rh850g4mh
+	-g
+	{optgroup=GCoresOptions} -srec
+	-shared_imports
+	-init_ram_at_startup
+	-Onoprintfuncs
+	-DMC_BUILD=1
+	-DUSE_BOARD=Y_ASK_RH850
+mca.gpj		[MultiCoreArchive]

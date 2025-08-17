@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mcu_data>
+    <cpu0Load><!--#pe0Load--></cpu0Load>
+    <cpu1Load><!--#pe1Load--></cpu1Load>
+    <cpu2Load><!--#pe2Load--></cpu2Load>
+    <runtime><!--#runtime--></runtime>
+    <poti><!--#poti--></poti>
+    <enc><!--#enc--></enc>
+    <ledr><!--#ledr--></ledr>
+    <ledg><!--#ledg--></ledg>
+    <ledb><!--#ledb--></ledb>
+    <led4><!--#led4--></led4>
+    <led5><!--#led5--></led5>
+    <led6><!--#led6--></led6>
+    <led7><!--#led7--></led7>
+    <ledring><!--#ledring--></ledring>
+    <ftx><!--#ftx--></ftx>
+    <frx><!--#frx--></frx>
+    <mode><!--#mode--></mode>
+</mcu_data>

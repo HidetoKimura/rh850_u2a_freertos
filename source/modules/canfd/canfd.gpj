@@ -1,0 +1,4 @@
+#!gbuild
+[Subproject]
+r_canfd.c
+r_canfd.h

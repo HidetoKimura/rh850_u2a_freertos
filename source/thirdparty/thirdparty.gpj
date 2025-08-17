@@ -1,0 +1,5 @@
+#!gbuild
+[Subproject]
+{streq(targetCore,pe0)} shell\shell.gpj
+{streq(targetCore,pe0)} fatfs\fatfs.gpj
+{streq(targetCore,pe1)} lwip\lwip.gpj

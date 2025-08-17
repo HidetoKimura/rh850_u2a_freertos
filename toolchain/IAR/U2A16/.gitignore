@@ -1,0 +1,5 @@
+BrowseInfo/
+Debug/
+settings/
+*.dep
+*.bak

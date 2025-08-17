@@ -1,0 +1,12 @@
+#!gbuild
+[Subproject]
+asm_macro_v1.h
+cpu.h
+device.h
+io_macros_v2.h
+cold_irq.h
+dr7f702300b_irq_PE0.h
+dr7f702300b_irq_PE1.h
+dr7f702300b_irq_PE2.h
+dr7f702300b_irq_PE3.h
+

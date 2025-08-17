@@ -1,0 +1,216 @@
+//-------------------------------------------------------------------------
+//      ILINK command file template for RH850 microcontroller R7F702300.
+//
+//      This file can be used to link object files from the RH850
+//      Assembler, IASMRH850, and the C/C++ compiler ICCRH850.
+//
+//          This file is generated from the device file:
+//          dr7f702300.dvf
+//          Copyright(C) 2020 Renesas
+//          Format version 2.20, File version 1.20 
+//-------------------------------------------------------------------------
+
+// Do not edit these default values.
+//
+define symbol _SELF_SIZE_DEFAULT     = 0x00008000;  // SELF_AREA size
+define symbol _SELF_BEGIN_DEFAULT    = 0xFDE08000;  // SELF_AREA start address
+define symbol _SELF_OFFSET_0_DEFAULT = 0x00008000;  // Offset for PE0
+define symbol _SELF_OFFSET_1_DEFAULT = 0x00008000;  // Offset for PE1
+define symbol _SELF_OFFSET_2_DEFAULT = 0x00008000;  // Offset for PE2
+define symbol _SELF_OFFSET_3_DEFAULT = 0x00008000;  // Offset for PE3
+
+if (isdefinedsymbol(_SELF_SIZE) == 0)
+{
+  define symbol _SELF_SIZE     = _SELF_SIZE_DEFAULT;
+  define symbol _SELF_BEGIN    = _SELF_BEGIN_DEFAULT;
+  define symbol _SELF_OFFSET_0 = _SELF_OFFSET_0_DEFAULT;
+  define symbol _SELF_OFFSET_1 = _SELF_OFFSET_1_DEFAULT;
+  define symbol _SELF_OFFSET_2 = _SELF_OFFSET_2_DEFAULT;
+  define symbol _SELF_OFFSET_3 = _SELF_OFFSET_3_DEFAULT;
+}
+else  // _SELF_SIZE is already defined
+{
+  if (_SELF_SIZE > _SELF_SIZE_DEFAULT * 2)
+  {
+    error "The value of the symbol _SELF_SIZE is too large.";
+  }
+  if (_SELF_SIZE < CSTACK_SIZE)
+  {
+    error "The value of the symbol _SELF_SIZE must be greater than or equal to the value of the symbol CSTACK_SIZE.";
+  }
+  if (_SELF_SIZE % 8 != 0)
+  {
+    error "The value of the symbol _SELF_SIZE must be divisible by 8.";
+  }
+
+  define symbol _SELF_DIFF     = _SELF_SIZE_DEFAULT - _SELF_SIZE;
+  define symbol _SELF_BEGIN    = _SELF_BEGIN_DEFAULT + _SELF_DIFF;
+  define symbol _SELF_OFFSET_0 = _SELF_OFFSET_0_DEFAULT + _SELF_DIFF;
+  define symbol _SELF_OFFSET_1 = _SELF_OFFSET_1_DEFAULT + _SELF_DIFF;
+  define symbol _SELF_OFFSET_2 = _SELF_OFFSET_2_DEFAULT + _SELF_DIFF;
+  define symbol _SELF_OFFSET_3 = _SELF_OFFSET_3_DEFAULT + _SELF_DIFF;
+}
+
+define memory mem with size = 4G;                                        // Section name    Memory type
+                                                                         // ------------    -----------
+
+define region ROM_near        = mem:[from 0x00000000 to 0x00007FFF];     // <code default>  Code FLASH bank A
+define region ROM_1ST_region  = mem:[from 0x00000000 to 0x003FFFFF];     // <code default>  Code FLASH bank A
+define region ROM_2ND_region  = mem:[from 0x00400000 to 0x007FFFFF];     // SECOND_ROM      Code FLASH bank C
+define region ROM_3RD_region  = mem:[from 0x00800000 to 0x00BFFFFF];     // THIRD_ROM       Code FLASH bank C
+define region ROM_4TH_region  = mem:[from 0x00C00000 to 0x00FFFFFF];     // FOURTH_ROM      Code FLASH bank D
+define region ROM_5TH_region  = mem:[from 0x02000000 to 0x023FFFFF];     // FIFTH_ROM       Code FLASH bank B
+define region ROM_6TH_region  = mem:[from 0x02400000 to 0x027FFFFF];     // SIXTH_ROM       Code FLASH bank D
+define region ROM_7TH_region  = mem:[from 0x08000000 to 0x0800FFFF];     // SEVENTH_ROM     Code FLASH shared
+define region ROM_8TH_region  = mem:[from 0x00000000 size 0];
+define region ROM_9TH_region  = mem:[from 0x00000000 size 0];
+define region ROM_10TH_region = mem:[from 0x00000000 size 0];
+define region ROM_11TH_region = mem:[from 0x00000000 size 0];
+define region ROM_12TH_region = mem:[from 0x00000000 size 0];
+define region ROM_13TH_region = mem:[from 0x00000000 size 0];
+define region ROM_14TH_region = mem:[from 0x00000000 size 0];
+define region ROM_15TH_region = mem:[from 0x00000000 size 0];
+define region ROM_16TH_region = mem:[from 0x00000000 size 0];
+
+define region RAM_near       = mem:[from 0x00000000 size 0];
+define exported symbol _RAM_1ST_BEG = 0xFE400000;
+define exported symbol _RAM_1ST_END = 0xFE4FFFFF;
+define region RAM_1ST_region = mem:[from _RAM_1ST_BEG to _RAM_1ST_END];  // <data default>  Cluster RAM
+define exported symbol _RAM_2ND_BEG = 0xFE500000;
+define exported symbol _RAM_2ND_END = 0xFE5FFFFF;
+define region RAM_2ND_region = mem:[from _RAM_2ND_BEG to _RAM_2ND_END];  // SECOND_RAM      Cluster RAM
+define exported symbol _RAM_3RD_BEG = 0xFE000000;
+define exported symbol _RAM_3RD_END = 0xFE07FFFF;
+define region RAM_3RD_region = mem:[from _RAM_3RD_BEG to _RAM_3RD_END];  // THIRD_RAM       Cluster RAM
+define exported symbol _RAM_4TH_BEG = 0xFE100000;
+define exported symbol _RAM_4TH_END = 0xFE17FFFF;
+define region RAM_4TH_region = mem:[from _RAM_4TH_BEG to _RAM_4TH_END];  // FOURTH_RAM      Cluster RAM
+define exported symbol _RAM_5TH_BEG = 0xFE800000;
+define exported symbol _RAM_5TH_END = 0xFE81FFFF;
+define region RAM_5TH_region = mem:[from _RAM_5TH_BEG to _RAM_5TH_END];  // FIFTH_RAM       Cluster RAM
+define exported symbol _RAM_6TH_BEG = 0xFE820000;
+define exported symbol _RAM_6TH_END = 0xFE83FFFF;
+define region RAM_6TH_region = mem:[from _RAM_6TH_BEG to _RAM_6TH_END];  // SIXTH_RAM       Cluster RAM
+define exported symbol _RAM_7TH_BEG = 0x00000000;
+define exported symbol _RAM_7TH_END = 0x00000000;
+define region RAM_7TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _RAM_8TH_BEG = 0x00000000;
+define exported symbol _RAM_8TH_END = 0x00000000;
+define region RAM_8TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _RAM_9TH_BEG = 0x00000000;
+define exported symbol _RAM_9TH_END = 0x00000000;
+define region RAM_9TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _RAM_10TH_BEG = 0x00000000;
+define exported symbol _RAM_10TH_END = 0x00000000;
+define region RAM_10TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _RAM_11TH_BEG = 0x00000000;
+define exported symbol _RAM_11TH_END = 0x00000000;
+define region RAM_11TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _RAM_12TH_BEG = 0x00000000;
+define exported symbol _RAM_12TH_END = 0x00000000;
+define region RAM_12TH_region = mem:[from 0x00000000 size 0];
+
+define exported symbol _SELF_AREA_COMMON_BEG = _SELF_BEGIN;
+define exported symbol _SELF_AREA_COMMON_END = _SELF_BEGIN + _SELF_SIZE - 1;
+define region SELF_AREA_region =
+  mem:[from _SELF_AREA_COMMON_BEG to _SELF_AREA_COMMON_END];             // SELF_AREA       Local RAM self/mirror area
+
+define region SELF_AREA_0_region = mem:[from 0xFDE00000 to 0xFDE0FFFF];
+
+reserve region "Reserved by local RAM CPU-specific access" =
+  (SELF_AREA_0_region - SELF_AREA_region);
+
+define exported symbol _LOC_3RD_BEG = 0xFD600000;
+define exported symbol _LOC_3RD_END = 0xFD60FFFF;
+define region LOC_3RD_region = mem:[from _LOC_3RD_BEG to _LOC_3RD_END];  // LOCAL3_RAM      Local RAM for PE3
+define region LOC_3RD_SELF_EXCLUSION_region =
+  mem:[from _LOC_3RD_BEG + _SELF_OFFSET_3 size _SELF_SIZE];
+
+define exported symbol _LOC_2ND_BEG = 0xFD800000;
+define exported symbol _LOC_2ND_END = 0xFD80FFFF;
+define region LOC_2ND_region = mem:[from _LOC_2ND_BEG to _LOC_2ND_END];  // LOCAL2_RAM      Local RAM for PE2
+define region LOC_2ND_SELF_EXCLUSION_region =
+  mem:[from _LOC_2ND_BEG + _SELF_OFFSET_2 size _SELF_SIZE];
+
+define exported symbol _LOC_1ST_BEG = 0xFDA00000;
+define exported symbol _LOC_1ST_END = 0xFDA0FFFF;
+define region LOC_1ST_region = mem:[from _LOC_1ST_BEG to _LOC_1ST_END];  // LOCAL1_RAM      Local RAM for PE1
+define region LOC_1ST_SELF_EXCLUSION_region =
+  mem:[from _LOC_1ST_BEG + _SELF_OFFSET_1 size _SELF_SIZE];
+
+define exported symbol _LOC_0TH_BEG = 0xFDC00000;
+define exported symbol _LOC_0TH_END = 0xFDC0FFFF;
+define region LOC_0TH_region = mem:[from _LOC_0TH_BEG to _LOC_0TH_END];  // LOCAL0_RAM      Local RAM for PE0
+define region LOC_0TH_SELF_EXCLUSION_region =
+  mem:[from _LOC_0TH_BEG + _SELF_OFFSET_0 size _SELF_SIZE];
+
+define exported symbol _LOC_4TH_BEG = 0x00000000;
+define exported symbol _LOC_4TH_END = 0x00000000;
+define region LOC_4TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _LOC_5TH_BEG = 0x00000000;
+define exported symbol _LOC_5TH_END = 0x00000000;
+define region LOC_5TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _LOC_6TH_BEG = 0x00000000;
+define exported symbol _LOC_6TH_END = 0x00000000;
+define region LOC_6TH_region = mem:[from 0x00000000 size 0];
+define exported symbol _LOC_7TH_BEG = 0x00000000;
+define exported symbol _LOC_7TH_END = 0x00000000;
+define region LOC_7TH_region = mem:[from 0x00000000 size 0];
+
+reserve region "Reserved by local RAM common self area access" =
+  LOC_3RD_SELF_EXCLUSION_region | LOC_2ND_SELF_EXCLUSION_region | LOC_1ST_SELF_EXCLUSION_region | LOC_0TH_SELF_EXCLUSION_region;
+
+define exported symbol _RAM_RET_BEG = 0xFE800000;
+define exported symbol _RAM_RET_END = 0xFE83FFFF;
+define region RAM_RET_region = mem:[from _RAM_RET_BEG to _RAM_RET_END];
+
+define block interrupt_vect_table_PE0 with alignment = 512 {
+  ro section EIINTTBL_PE0 };
+define block interrupt_vect_table_PE1 with alignment = 512 {
+  ro section EIINTTBL_PE1 };
+define block interrupt_vect_table_PE2 with alignment = 512 {
+  ro section EIINTTBL_PE2 };
+define block interrupt_vect_table_PE3 with alignment = 512 {
+  ro section EIINTTBL_PE3 };
+
+define block cmd with fixed order, alignment = 4 {  
+    ro section .cmd_list,
+    ro section .auto_list,
+    ro section .cmd_end
+};
+
+place in ROM_1ST_region  {
+ block cmd
+};
+
+"INTERRUPT":place at address mem:0x200
+{
+  block interrupt_vect_table_PE0,
+  block interrupt_vect_table_PE1
+};
+
+"INTERRUPT2":place at address mem:0x00800200
+{
+  block interrupt_vect_table_PE2,
+  block interrupt_vect_table_PE3
+};
+
+
+
+//Uncomment and adapt the following section if you want to place the interrupt tables at specific addresses.
+// define block .interrupt_core0 with alignment = 8 {
+//   ro section .table.interrupt_core_0 };
+//
+// "INTERRUPT":place at address mem:0x200
+// {
+//   block .interrupt_core0
+// };
+
+define exported symbol __IAR_RESET2 = 1;
+define symbol __IAR_RESET2_ADDR = 0x00800000;
+
+include "layout_g4.icf";
+
+//-------------------------------------------------------------------------
+//      End of file
+//-------------------------------------------------------------------------

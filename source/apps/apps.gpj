@@ -1,0 +1,6 @@
+#!gbuild
+[Subproject]
+{streq(targetCore,pe0)} ui/ui.gpj
+{streq(targetCore,pe0)} sdCommands/sdCommands.gpj
+{streq(targetCore,pe0)} standby/standby.gpj
+{streq(targetCore,pe0)} systemTest/systemTest.gpj

@@ -1,0 +1,12 @@
+#!gbuild
+[Subproject]
+{streq(targetCore,pe0)} rscanfd\rscanfd.gpj
+{streq(targetCore,pe0)} rlin\rlin.gpj
+{streq(targetCore,pe0)} pwmd\pwmd.gpj
+{streq(targetCore,pe0)} enc\enc.gpj
+{streq(targetCore,pe0)} mmca\mmca.gpj
+{streq(targetCore,pe1)} etnb0\etnb0.gpj
+{streq(targetCore,pe0)} ${targetDevice}_SmartConfigurator\SmartConfigurator.gpj
+{streq(targetCore,pe0,pe1,pe2,pe3)} ${targetDevice}_SmartConfigurator\interrupt.gpj
+{streq(targetCore,pe0)} stbc_iohold\stbc_iohold.gpj
+{streq(targetCore,shared)} ltsc\ltsc.gpj

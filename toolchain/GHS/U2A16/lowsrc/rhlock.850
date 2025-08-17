@@ -1,0 +1,319 @@
+-- ===============================================================================================
+-- 
+--   Copyright (c) 2013 by Renesas Electronics Europe GmbH, a company of the Renesas Electronics 
+--   Corporation. All rights reserved.
+-- 
+-- ===============================================================================================
+-- 
+--   Warranty Disclaimer                                                       
+--                                                                            
+--   Because the Product(s) is licensed free of charge, there is no warranty of any kind
+--   whatsoever and expressly disclaimed and excluded by Renesas, either expressed or implied, 
+--   including but not limited to those for non-infringement of intellectual property, 
+--   merchantability and/or fitness for the particular purpose.
+--   Renesas shall not have any obligation to maintain, service or provide bug fixes for the
+--   supplied Product(s) and/or the Application.
+-- 
+--   Each User is solely responsible for determining the appropriateness of using the Product(s)
+--   and assumes all risks associated with its exercise of rights under this Agreement, including,
+--   but not limited to the risks and costs of program errors, compliance with applicable laws,
+--   damage to or loss of data, programs or equipment, and unavailability or interruption of
+--   operations.
+-- 
+--   Limitation of Liability
+-- 
+--   In no event shall Renesas be liable to the User for any incidental, consequential, indirect,
+--   or punitive damage (including but not limited to lost profits) regardless of whether such
+--   liability is based on breach of contract, tort, strict liability, breach of warranties, 
+--   failure of essential purpose or otherwise and even if advised of the possibility of such
+--   damages. Renesas shall not be liable for any services or products provided by third party
+--   vendors, developers or consultants identified or referred to the User by Renesas in 
+--   connection with the Product(s) and/or the Application.
+--   Version: 1.30
+-- 
+-- ===============================================================================================
+
+	.file "rhlock.850"
+
+/*
+ * Only for assembler code 
+ */
+#ifndef ENTER
+#define ENTER( f) \
+    .global f; \
+    .section .text; \
+    .align   4; \
+    .type    f, @function; \
+f:;
+#endif
+
+#ifndef LEAVE
+#define LEAVE( f) \
+    .type  f, @function; \
+    .size	f, .-f;
+#endif
+
+-- 
+-- void ThdSyncReq( unsigned long *a)
+-- Request a thread lock!
+-- If already allocated by different thread, wait forever ...
+-- 
+	.text
+ENTER( _ThdSyncReq)
+.lock:	
+	ldl.w	[r6], r7		-- try to create the Locked Link
+	cmp	zero, r7		-- if LL already in use ...
+	bnz	.lock_wait		-- then wait
+
+	-- lock is ready
+	mov	r6, r7			-- use parameter 1 for allocation
+	stc.w	r7, [r6]		-- write the value
+	cmp	zero, r7		-- if (r8==0), write failed!
+	bnz	.lock_done		-- otherwise return from writing
+
+.lock_wait:
+	snooze					-- wait with bus snooze function
+	br	.lock			-- check again ...
+
+.lock_done:
+	jmp	[lp]			-- return from successfull aquiring 
+LEAVE( _ThdSyncReq)
+
+--
+-- Clear the locked link with 0
+--
+ENTER(_ThdSyncRel)
+	st.w	zero, 0[r6]		-- clear the locked link with 0
+	jmp	[lp]			-- return to caller
+LEAVE(_ThdSyncRel)
+
+
+--
+-- Function: int R_lock( int, T_LOCK *, unsigned int try)
+-- Set a Lock to aquire a semaphore
+-- Parameter 1: (r6): PE, which aquires the lock (1...6)
+-- Parameter 2: (r7): The 8-bit address to handle the lock
+--                    Bit0: 0 - unlocked, 1 - locked
+--                    Others  - the PE which is owner of the lock
+-- Parameter 3: (r8): try - number of trials to gain a lock
+-- Return: -1 if lock is already in use by owner
+--          0 (false) if lock is not successful                      
+--          1 (true)  if lock was gained
+-- Note: Any shared address space may be used
+--       In C, the type T_LOCK is used to realize the varaibles
+-- Remark: Please do not use in interrupts ...
+--         Do use 0< try <0xffffffff, number of trial to gain lock
+--
+	.text
+ENTER( _R_lock)
+        mov     r0, r10                         -- default return value is false
+.get_lock:
+        set1    0, 0[r7]                        -- try to set allocation bit (globally)
+        bnz     .lock_fail                      -- lock bit already set
+        ld.w    0[r7], r18                      -- handle lock success
+        bins    r6, 1, 31, r18
+        st.w    r18, 0[r7]                      -- set ownership
+        addi    1, r0, r10                      -- return val is true and bigger than 0
+        jmp     [lp]                            -- return to caller
+
+.lock_fail:
+        ld.w     0[r7], r18                     -- check for ownership
+        shr      1, r18
+        cmp      r6, r18                        -- is requester == owner?
+        bnz      1f                             -- someone else owns the lock
+        addi     -1, r0, r10                    -- return -1, because the owner has this lock already
+        jmp      [lp]                           -- return to caller
+                 
+1:               
+        add      -1, r8                         -- decrement try counter
+        mov      r8, r10                        -- and prepare return value speculative
+        bne      .get_lock
+
+        jmp     [lp]
+LEAVE( _R_lock)
+
+
+--
+-- Function: int R_unlock( int, T_LOCK *)
+-- Free a Lock.
+-- Parameter 1: (r6): PE, which aquires the lock (1...6)
+-- Parameter 2: (r7): The 8-bit address to handle the lock
+--                    Bit0: 0 - unlocked, 1 - locked
+--                    Others  - the PE which is owner of the lock
+-- Return:  0 (false) if lock is not successful                      
+--          1 (true)  if lock was gained
+-- Note: Any shared address space may be used
+--       In C, the type T_LOCK is used to realize the varaibles
+--       Only the owner of the lock bit is able to free it!
+--
+	.text
+ENTER( _R_unlock)
+        ld.w    0[r7],r18
+        shr     1, r18
+        cmp     r6, r18                 -- if( pLock->owner!=pe)
+        be      .do_unlock
+        mov     r0, r10                 -- __error=0;
+
+        .jumptype return
+        jmp     [lp]                    -- return __error (false)
+
+.do_unlock:
+        addi    1, r0, r10
+        st.w    zero, 0[r7]
+
+        .jumptype return
+        jmp     [lp]                    -- return __error (true)
+LEAVE( _R_unlock)
+
+--
+-- Function: int R_lock_linked( T_LOCK.locked, T_LOCK *, int lock, unsigned int try)
+-- Set a Lock to aquire a semaphore
+-- Parameter 1: (r6): PE, which aquires the lock (1...6)
+-- Parameter 2: (r7): The 8-bit address to handle the lock
+--                    Bit0: 0 - unlocked, 1 - locked
+--                    Others  - the PE which is owner of the lock
+-- Parameter 3: (r8): try - number of trials to gain a lock
+-- Parameter 4: (r9): 32-bit lock address
+-- Return: 0 (false) if lock is not successful                      
+--         1 (true)  if lock was gained
+-- Note: Any shared address space may be used
+--       In C, the type T_LOCK is used to realize the varaibles
+-- Remark: Please do not use in interrupts ...
+--         Do use 0< try <0xffffffff, number of trial to gain lock
+--
+
+ENTER( _R_lock_linked)
+        shl     1, r6                   -- make owner
+        ori     1, r6, r18              -- make lock bit
+.get_llock:
+        addi    -1, r8, r8              -- decrement try counter
+        bz      .llock_done             -- leave if try counter == 0
+        mov     r18, r6
+        ldl.w   [r7], r10               -- aquire the link
+        cmp     r0, r10
+        bnz     .get_llock              -- locatioon in use
+        stc.w   r6, [r7]                -- if link active, store new value
+        cmp     r0, r6                  -- check if successful
+        bz      .get_llock              -- no, try again
+        ori     1, r0, r10              -- return true
+.llock_done:        
+        jmp	[lp]                    -- return from aquirement
+LEAVE( _R_lock_linked)
+
+
+ENTER( _R_unlock_linked)
+        ld.w    0[r7],r18
+        shr     1, r18
+        cmp     r6, r18                 -- if( pLock->owner!=pe)
+        be      .do_unlockl
+        mov     r0, r10                 -- __error=0;
+
+        .jumptype return
+        jmp     [lp]                    -- return __error (false)
+
+.do_unlockl:
+        addi    1, r0, r10
+        st.w    zero, 0[r7]
+
+        .jumptype return
+        jmp     [lp]                    -- return __error (true)
+LEAVE( _R_lock_linked)
+
+#if defined(MC_BUILD)
+#if defined( __RH850G4MH__)
+
+-- This function uses the G0MEV0 register, which is initialized to zero
+-- on reset.  The register is shared across all cores.
+
+    .weak ___ghs_multicore_init_flag
+    .global ___ghs_multicore_wait_for_init
+___ghs_multicore_wait_for_init:
+-- MOV32 (__G0MEV0, r10)
+    mov ___ghs_multicore_init_flag, r10
+
+	-- Now wait until the value changes
+.mc_init_not_done:
+	-- Check the flag to see if initialization is complete.  If you have
+	-- a data cache, you will need to invalidate it before each load
+	ld.w	0[r10],r11
+	cmp	zero,r11
+	be	.mc_init_not_done
+
+	jmp	[lp]
+	.fsize 0
+	.scall __leaf__
+	.type ___ghs_multicore_wait_for_init,@function
+	.size ___ghs_multicore_wait_for_init,.-___ghs_multicore_wait_for_init
+
+___callee.__ghs_multicore_init_done.v.v::
+	.size	___callee.__ghs_multicore_init_done.v.v,0
+	.globl ___ghs_multicore_init_done
+___ghs_multicore_init_done:
+	mov     1, r6	
+	movhi	HI(___ghs_multicore_init_flag), zero, r7
+	st.w	r6, LO(___ghs_multicore_init_flag)[r7]
+	jmp	[lp]
+	.fsize 0
+	.scall __leaf__
+        .type   ___ghs_multicore_init_done,@function
+        .size   ___ghs_multicore_init_done,.-___ghs_multicore_init_done
+
+#endif
+#endif
+
+
+--
+-- Function: void __rh_saveGR( unsigned long *)
+-- Saves some general purpose registers to memory specified by
+-- Parameter 1: (r6) address of the memory array to store the registers
+--
+ENTER( ___rh_saveGR)
+        st.w   r1, 0[r6]
+        st.w   r2, 4[r6]
+        st.dw  r4, 12[r6]
+        st.dw  r6, 20[r6]
+        st.dw  r8, 28[r6]
+
+        st.dw  r10, 36[r6]
+        st.dw  r12, 44[r6]
+        st.dw  r14, 52[r6]
+        st.dw  r16, 60[r6]
+        st.dw  r18, 68[r6]
+
+        st.dw  r20, 76[r6]
+        st.dw  r22, 84[r6]
+        st.dw  r24, 92[r6]
+        st.dw  r26, 100[r6]
+        st.dw  r28, 108[r6]
+        st.w   r30, 116[r6]
+
+	jmp	[lp]			-- return from function
+LEAVE( ___rh_saveGR)
+
+--
+-- Function: void __rh_LoadGR( unsigned long *)
+-- Restores some general purpose registers to memory specified by
+-- Parameter 1: (r6) address of the memory array to store the registers
+--
+ENTER( ___rh_loadGR)
+        ld.w    0[r6],  r1 
+        ld.w    4[r6],  r2 
+        ld.dw   12[r6], r4 
+        ld.dw   20[r6], r6 
+        ld.dw   28[r6], r8 
+                            
+        ld.dw   36[r6], r10
+        ld.dw   44[r6], r12
+        ld.dw   52[r6], r14
+        ld.dw   60[r6], r16
+        ld.dw   68[r6], r18
+                           
+        ld.dw   76[r6], r20
+        ld.dw   84[r6], r22
+        ld.dw   92[r6], r24
+        ld.dw   100[r6],r26
+        ld.dw   108[r6],r28
+        ld.w    116[r6],r30
+
+	jmp	[lp]			-- return from function
+LEAVE( ___rh_loadGR)

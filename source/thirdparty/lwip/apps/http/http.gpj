@@ -1,0 +1,11 @@
+#!gbuild
+[Subproject]
+	-I./website
+website/website.gpj
+httpd.c
+r_ssi.c
+r_ssi.h
+r_cgi.c
+r_cgi.h
+httpd.h
+httpd_structs.h

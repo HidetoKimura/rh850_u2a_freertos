@@ -1,0 +1,11 @@
+#!gbuild
+[Subproject]
+{streq(targetCore,shared)} systimer\systimer.gpj
+{streq(targetCore,pe0)} display\display.gpj
+{streq(targetCore,pe0)} leds\led.gpj
+{streq(targetCore,pe0)} uart\uart.gpj
+{streq(targetCore,pe0)} lin\lin.gpj
+{streq(targetCore,pe0)} userInput\userInput.gpj
+{streq(targetCore,pe0)} sdcard\sdcard.gpj
+{streq(targetCore,pe0)} canfd\canfd.gpj
+{streq(targetCore,pe1)} eth\eth.gpj

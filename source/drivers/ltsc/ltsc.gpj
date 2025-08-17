@@ -1,0 +1,4 @@
+#!gbuild
+[Subproject]
+r_ltsc.c
+r_ltsc.h

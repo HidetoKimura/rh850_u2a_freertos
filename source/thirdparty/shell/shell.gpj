@@ -1,0 +1,8 @@
+#!gbuild
+[Subproject]
+	-Ilib\a2i\
+	-Ilib\printf\
+	-Ilib\regs\
+shell.c
+lib\a2i\a2i.c
+lib\printf\printf.c

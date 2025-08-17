@@ -1,0 +1,897 @@
+-------------------------------------------------------------------------------
+-- Module      = coldreset.850
+-- Version     = E1.07
+--               manually created  
+--               
+-------------------------------------------------------------------------------
+--                                  COPYRIGHT
+-------------------------------------------------------------------------------
+-- Copyright (c) 2014 by Renesas Electronics Europe GmbH,
+--               a company of the Renesas Electronics Corporation
+-------------------------------------------------------------------------------
+-- Purpose:      Startup Code
+--
+-------------------------------------------------------------------------------
+--
+-- Warranty Disclaimer
+--
+-- Because the Product(s) is licensed free of charge, there is no warranty
+-- of any kind whatsoever and expressly disclaimed and excluded by Renesas,
+-- either expressed or implied, including but not limited to those for
+-- non-infringement of intellectual property, merchantability and/or
+-- fitness for the particular purpose.
+-- Renesas shall not have any obligation to maintain, service or provide bug
+-- fixes for the supplied Product(s) and/or the Application.
+--
+-- Each User is solely responsible for determining the appropriateness of
+-- using the Product(s) and assumes all risks associated with its exercise
+-- of rights under this Agreement, including, but not limited to the risks
+-- and costs of program errors, compliance with applicable laws, damage to
+-- or loss of data, programs or equipment, and unavailability or
+-- interruption of operations.
+--
+-- Limitation of Liability
+--
+-- In no event shall Renesas be liable to the User for any incidental,
+-- consequential, indirect, or punitive damage (including but not limited
+-- to lost profits) regardless of whether such liability is based on breach
+-- of contract, tort, strict liability, breach of warranties, failure of
+-- essential purpose or otherwise and even if advised of the possibility of
+-- such damages. Renesas shall not be liable for any services or products
+-- provided by third party vendors, developers or consultants identified or
+-- referred to the User by Renesas in connection with the Product(s) and/or
+-- the Application.
+--
+-------------------------------------------------------------------------------
+-- Environment:
+--              Device:         All RH850 Mutlicore
+--              IDE:            GHS Multi for V800  V6.1.4/2013.5.5 or later
+-------------------------------------------------------------------------------
+#ifndef __U2A__
+#define __U2A__ 1
+#endif
+-------------------------------------------------------------------------------
+-------------  Selection of external interrupt service handler
+-------------  User modifiable section
+-------------  Please uncomment the required interrupt service handler
+-------------------------------------------------------------------------------
+#include <cold_irq.h>
+
+-------------------------------------------------------------------------------
+-- List of services provided by asm_macro_v1.h:
+-- E2XFCC1:
+--          PORT_CREATE
+--          BOOT_ALL_PE PE
+--          SETLED(pe, n) [0<n<0xff, 1<pe<8]
+--          jmpIfPE0 address
+--          jmpIfPE1 address
+--          jmpIfPE2 address
+--          jmpIfPE3 address
+--          CallWeak address
+-------------------------------------------------------------------------------
+
+#include "asm_macro_v1.h"
+
+-------------------------------------------------------------------------------
+-------------  Basic Initialisation of the controller
+-------------  User modifiable section
+-------------------------------------------------------------------------------
+  .extern	_RESET_PE0
+  .extern	_RESET_PE1
+  .weak	_RESET_PE2
+  .weak	_RESET_PE3
+  .weak _JumpToReset
+
+  .set CDBCR      24        /* Data buffer control register */
+
+#ifdef  __RH850G4MH__
+  .section ".coldboot", .text
+#else
+  .text
+#endif
+_RESET:
+  --
+  -- Start/Size of local Self_ram is defined in the linker file
+  -- the symbols are derived froma that file
+  --
+  .extern   ___ghs_ramstart
+  .extern   ___ghs_ramend
+
+  .extern ___ghs_multicore_init_flag
+  skip21f PE0    -- skip next code to label 1
+  mov   ___ghs_multicore_init_flag, r1
+  st.w  r0, 0[r1]
+  -- BOOT_ALL_PE 0  -- we boot cores in our own low level init pe0
+  -- INITAL_BOOT_BARRIER
+
+1:
+  mov	r0, r2
+  mov	r0, r3
+  mov	r0, r4
+  mov	r0, r5
+  mov	r0, r6
+  mov	r0, r7
+  mov	r0, r8
+  mov	r0, r9
+  mov	r0, r10
+  mov	r0, r11
+  mov	r0, r12
+  mov	r0, r13
+  mov	r0, r14
+  mov	r0, r15
+  mov	r0, r16
+  mov	r0, r17
+  mov	r0, r18
+  mov	r0, r19
+  mov	r0, r20
+  mov	r0, r21
+  mov	r0, r22
+  mov	r0, r23
+  mov	r0, r24
+  mov	r0, r25
+  mov	r0, r26
+  mov	r0, r27
+  mov	r0, r28
+  mov	r0, r29
+  mov	r0, r30
+  mov	r0, r31
+  
+  -- CPU function group system register set
+  -- Basic System register 
+  ldsr    r0,     EIPC,  0
+  ldsr    r0,     FEPC,  0
+  ldsr    r0,     CTPC,  0
+  ldsr    r0,     EIPSW, 0
+  ldsr    r0,     FEPSW, 0
+  ldsr    r0,     EIWR,  0
+  ldsr    r0,     FEWR,  0
+  ldsr    r0,     EBASE, 1
+  ldsr    r0,     INTBP, 1
+  ldsr    r0,     MEA,   2    
+  ldsr    r0,     MEI,   2
+  ldsr    r0,     RBIP,  2
+
+  -- enable H/W FPU
+  mov     0x00010020, r6        -- CU0 and CU1 enable, ID set
+  ldsr    r6,     PSW, 0
+  stsr    PSW,    r7, 0
+  xor     r6,     r7
+  bne     1f                    -- skip next code, if no FPU
+
+  
+  --intialize FPU system register
+  mov     0x00020000, r6  -- initial value for FPSR
+  ldsr    r6,     FPSR, 0
+  ldsr    r0,     FPEPC, 0
+  ldsr    r0,     FPST, 0
+  ldsr    r0,     FPCC, 0
+  ldsr    r0,     FPEC, 0
+  
+1:
+  -- MPU function register initialisation
+  ldsr    r0,     MCA, 5
+  ldsr    r0,     MCS, 5
+  ldsr    r0,     MCR, 5
+
+  -- loop prologue
+  addi    31, r0, r1
+2:
+  ldsr    r1,     MPIDX, 5
+  ldsr    r0,     MPLA,  5
+  ldsr    r0,     MPUA,  5
+  ldsr    r0,     MPAT,  5
+  loop    r1, 2b
+  -- loop epilogue
+  ldsr    r1,     MPIDX, 5
+  ldsr    r0,     MPLA,  5
+  ldsr    r0,     MPUA,  5
+  ldsr    r0,     MPAT,  5
+
+  ldsr    r0,     MPID0, 5
+  ldsr    r0,     MPID1, 5
+  ldsr    r0,     MPID2, 5
+  ldsr    r0,     MPID3, 5
+  ldsr    r0,     MPID4, 5
+  ldsr    r0,     MPID5, 5
+  ldsr    r0,     MPID6, 5
+  ldsr    r0,     MPID7, 5
+  ldsr    r0,     MCI,   5
+
+
+  -- Cache operation function register
+  ldsr    r0,     ICTAGL, 4        /* Instruction cache tag Lo access SV */
+  ldsr    r0,     ICTAGH, 4        /* Instruction cache tag Hi access SV */
+  ldsr    r0,     ICDATL, 4        /* Instruction cache data Lo access SV */
+  ldsr    r0,     ICDATH, 4        /* Instruction cache data Hi access SV */
+  ldsr    r0,     ICCTRL, 4        /* Instruction cache control SV */
+  ldsr    r0,     ICCFG , 4        /* Instruction cache configuration SV */
+  ldsr    r0,     ICERR , 4        /* Instruction cache error SV */
+
+  -- Virtualization support function system register
+  ldsr    r0,     HVSB,    1
+
+  -- Guest Context Register
+  ldsr    r0,     GMEIPC,  9
+  ldsr    r0,     GMFEPC,  9
+  ldsr    r0,     GMEBASE, 9
+  ldsr    r0,     GMINTBP, 9
+  ldsr    r0,     GMEIWR,  9
+  ldsr    r0,     GMFEWR,  9
+  ldsr    r0,     GMMEA,   9
+  ldsr    r0,     GMMEI,   9
+
+  jr32  _JumpToReset
+
+-------------------------------------------------------------------------------
+-------------  Interrupt service routine of unused interrupts
+  .global  __unused_isr
+__unused_isr:
+  br	__unused_isr
+-------------------------------------------------------------------------------
+  
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-------------  Add section ".cintvect" to your linker command file
+-------------  at address 0x0000
+-------------
+-------------	i.e.	.cintvect    0x0000:
+-------------------------------------------------------------------------------
+.section".cintvect",.text
+
+-------------------------------------------------------------------------------
+-------------  Initializing of interrupt vector table
+-------------  Please don't modify this section
+-------------------------------------------------------------------------------
+
+  .global _RESETVECT
+  .global _RESET
+  .offset 0x0000
+  #if (RESET_ENABLE > 0x00000000)
+    .extern _RESET
+_RESETVECT:
+    jr _RESET
+    synci
+  #else
+    jr __unused_isr
+  #endif
+
+#ifdef __OS_HANDLES__      
+
+/* OS interrupt code can be added here */
+
+#else /* __OS_HANDLES__ */ 
+
+  .offset 0x0010
+  #if (SYSERR_ENABLE > 0x00000000)
+    .extern _SYSERR
+    jr _SYSERR
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0020
+  #if (HVTRAP_ENABLE > 0x00000000)
+    .extern _HVTRAP
+    jr _HVTRAP
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0030
+  #if (FETRAPEX_ENABLE > 0x00000000)
+    .extern _FETRAPEX
+    jr _FETRAPEX
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0040
+  #if (EITRAP0_ENABLE > 0x00000000)
+    .extern _EITRAP0
+    jr _EITRAP0
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0050
+  #if (EITRAP1_ENABLE > 0x00000000)
+    .extern _EITRAP1
+    jr _EITRAP1
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0060
+  #if (RIEX_ENABLE > 0x00000000)
+    .extern _RIEX
+    jr _RIEX
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0080
+  #if (UCPOP_ENABLE > 0x00000000)
+    .extern _UCPOP
+    jr _UCPOP
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0090
+  #if (MIP_MDP_ENABLE > 0x00000000)
+    .extern _MIP_MDP
+    jr _MIP_MDP
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x00a0
+  #if (PIEX_ENABLE > 0x00000000)
+    .extern _PIEX
+    jr _PIEX
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x00c0
+  #if (MAEX_ENABLE > 0x00000000)
+    .extern _MAEX
+    jr _MAEX
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x00e0
+  #if (FENMI_ENABLE > 0x00000000)
+    .extern _FENMI
+    jr _FENMI
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x00f0
+  #if (FEINT_ENABLE > 0x00000000)
+    .extern _FEINT
+    jr _FEINT
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0100
+  #if (EINTPRIO_0_ENABLE > 0x00000000)
+    .extern _EINTPRIO_0
+    jr _EINTPRIO_0
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0110
+  #if (EINTPRIO_1_ENABLE > 0x00000000)
+    .extern _EINTPRIO_1
+    jr _EINTPRIO_1
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0120
+  #if (EINTPRIO_2_ENABLE > 0x00000000)
+    .extern _EINTPRIO_2
+    jr _EINTPRIO_2
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0130
+  #if (EINTPRIO_3_ENABLE > 0x00000000)
+    .extern _EINTPRIO_3
+    jr _EINTPRIO_3
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0140
+  #if (EINTPRIO_4_ENABLE > 0x00000000)
+    .extern _EINTPRIO_4
+    jr _EINTPRIO_4
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0150
+  #if (EINTPRIO_5_ENABLE > 0x00000000)
+    .extern _EINTPRIO_5
+    jr _EINTPRIO_5
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0160
+  #if (EINTPRIO_6_ENABLE > 0x00000000)
+    .extern _EINTPRIO_6
+    jr _EINTPRIO_6
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0170
+  #if (EINTPRIO_7_ENABLE > 0x00000000)
+    .extern _EINTPRIO_7
+    jr _EINTPRIO_7
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0180
+  #if (EINTPRIO_8_ENABLE > 0x00000000)
+    .extern _EINTPRIO_8
+    jr _EINTPRIO_8
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x0190
+  #if (EINTPRIO_9_ENABLE > 0x00000000)
+    .extern _EINTPRIO_9
+    jr _EINTPRIO_9
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x01a0
+  #if (EINTPRIO_10_ENABLE > 0x00000000)
+    .extern _EINTPRIO_10
+    jr _EINTPRIO_10
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x01b0
+  #if (EINTPRIO_11_ENABLE > 0x00000000)
+    .extern _EINTPRIO_11
+    jr _EINTPRIO_11
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x01c0
+  #if (EINTPRIO_12_ENABLE > 0x00000000)
+    .extern _EINTPRIO_12
+    jr _EINTPRIO_12
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x01d0
+  #if (EINTPRIO_13_ENABLE > 0x00000000)
+    .extern _EINTPRIO_13
+    jr _EINTPRIO_13
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x01e0
+  #if (EINTPRIO_14_ENABLE > 0x00000000)
+    .extern _EINTPRIO_14
+    jr _EINTPRIO_14
+  #else
+    jr __unused_isr
+  #endif
+
+  .offset 0x01f0
+  #if (EINTPRIO_15_ENABLE > 0x00000000)
+    .extern _EINTPRIO_15
+    jr _EINTPRIO_15
+  #else
+    jr __unused_isr
+  #endif
+
+#endif
+
+#if (NCORES>2)
+#ifdef  __U2A__
+  .section ".coldboot2", .text
+#else
+  .text
+#endif
+_RESET2:
+  --
+  -- Start/Size of local Self_ram is defined in the linker file
+  -- the symbols are derived froma that file
+  --
+  .extern   ___ghs_ramstart
+  .extern   ___ghs_ramend
+
+  .extern ___ghs_multicore_init_flag
+  skip21f PE0                            -- skip next code to label 1
+  mov   ___ghs_multicore_init_flag, r1
+  st.w  r0, 0[r1]
+  -- BOOT_ALL_PE 0  -- we boot cores in our own low level init pe0
+  -- INITAL_BOOT_BARRIER
+
+1:
+  mov	r0, r2
+  mov	r0, r3
+  mov	r0, r4
+  mov	r0, r5
+  mov	r0, r6
+  mov	r0, r7
+  mov	r0, r8
+  mov	r0, r9
+  mov	r0, r10
+  mov	r0, r11
+  mov	r0, r12
+  mov	r0, r13
+  mov	r0, r14
+  mov	r0, r15
+  mov	r0, r16
+  mov	r0, r17
+  mov	r0, r18
+  mov	r0, r19
+  mov	r0, r20
+  mov	r0, r21
+  mov	r0, r22
+  mov	r0, r23
+  mov	r0, r24
+  mov	r0, r25
+  mov	r0, r26
+  mov	r0, r27
+  mov	r0, r28
+  mov	r0, r29
+  mov	r0, r30
+  mov	r0, r31
+  
+  -- CPU function group system register set
+  -- Basic System register 
+  ldsr    r0,     EIPC,  0
+  ldsr    r0,     FEPC,  0
+  ldsr    r0,     CTPC,  0
+  ldsr    r0,     EIPSW, 0
+  ldsr    r0,     FEPSW, 0
+  ldsr    r0,     EIWR,  0
+  ldsr    r0,     FEWR,  0
+  ldsr    r0,     EBASE, 1
+  ldsr    r0,     INTBP, 1
+  ldsr    r0,     MEA,   2    
+  ldsr    r0,     MEI,   2
+  ldsr    r0,     RBIP,  2
+
+  -- enable H/W FPU
+  mov     0x00010020, r6        -- CU0 and CU1 enable, ID set
+  ldsr    r6,     PSW, 0
+  stsr    PSW,    r7, 0
+  xor     r6,     r7
+  bne     1f                    -- skip next code, if no FPU
+
+  
+  --intialize FPU system register
+  mov     0x00020000, r6  -- initial value for FPSR
+  ldsr    r6,     FPSR, 0
+  ldsr    r0,     FPEPC, 0
+  ldsr    r0,     FPST, 0
+  ldsr    r0,     FPCC, 0
+  ldsr    r0,     FPEC, 0
+  
+1:
+  -- MPU function register initialisation
+  ldsr    r0,     MCA, 5
+  ldsr    r0,     MCS, 5
+  ldsr    r0,     MCR, 5
+
+  -- loop prologue
+  addi    31, r0, r1
+2:
+  ldsr    r1,     MPIDX, 5
+  ldsr    r0,     MPLA,  5
+  ldsr    r0,     MPUA,  5
+  ldsr    r0,     MPAT,  5
+  loop    r1, 2b
+  -- loop epilogue
+  ldsr    r1,     MPIDX, 5
+  ldsr    r0,     MPLA,  5
+  ldsr    r0,     MPUA,  5
+  ldsr    r0,     MPAT,  5
+
+  ldsr    r0,     MPID0, 5
+  ldsr    r0,     MPID1, 5
+  ldsr    r0,     MPID2, 5
+  ldsr    r0,     MPID3, 5
+  ldsr    r0,     MPID4, 5
+  ldsr    r0,     MPID5, 5
+  ldsr    r0,     MPID6, 5
+  ldsr    r0,     MPID7, 5
+  ldsr    r0,     MCI,   5
+
+
+  -- Cache operation function register
+  ldsr    r0,     ICTAGL, 4        /* Instruction cache tag Lo access SV */
+  ldsr    r0,     ICTAGH, 4        /* Instruction cache tag Hi access SV */
+  ldsr    r0,     ICDATL, 4        /* Instruction cache data Lo access SV */
+  ldsr    r0,     ICDATH, 4        /* Instruction cache data Hi access SV */
+  ldsr    r0,     ICCTRL, 4        /* Instruction cache control SV */
+  ldsr    r0,     ICCFG , 4        /* Instruction cache configuration SV */
+  ldsr    r0,     ICERR , 4        /* Instruction cache error SV */
+
+  -- Virtualization support function system register
+  ldsr    r0,     HVSB,    1
+
+  -- Guest Context Register
+  ldsr    r0,     GMEIPC,  9
+  ldsr    r0,     GMFEPC,  9
+  ldsr    r0,     GMEBASE, 9
+  ldsr    r0,     GMINTBP, 9
+  ldsr    r0,     GMEIWR,  9
+  ldsr    r0,     GMFEWR,  9
+  ldsr    r0,     GMMEA,   9
+  ldsr    r0,     GMMEI,   9
+
+  jr32  _JumpToReset
+
+-------------------------------------------------------------------------------
+-------------  Interrupt service routine of unused interrupts
+  .global  __unused_isr2
+__unused_isr2:
+  br	__unused_isr2
+-------------------------------------------------------------------------------
+  
+-------------------------------------------------------------------------------
+
+#ifdef __U2A__
+-------------------------------------------------------------------------------
+-------------  Add section ".cintvect" to your linker command file
+-------------  at address 0x0000
+-------------
+-------------	i.e.	.cintvect    0x0000:
+-------------------------------------------------------------------------------
+.section".cintvect2",.text
+
+-------------------------------------------------------------------------------
+-------------  Initializing of interrupt vector table
+-------------  Please don't modify this section
+-------------------------------------------------------------------------------
+
+  .global _RESETVECT2
+  .global _RESET2
+  .offset 0x0000
+  #if (RESET_ENABLE > 0x00000000)
+    .extern _RESET
+_RESETVECT2:
+    jr _RESET2
+    synci
+  #else
+    jr __unused_isr2
+  #endif
+
+#ifdef __OS_HANDLES__      
+
+/* OS interrupt code can be added here */
+
+#else /* __OS_HANDLES__ */ 
+
+  .offset 0x0010
+  #if (SYSERR_ENABLE > 0x00000000)
+    .extern _SYSERR
+    jr _SYSERR
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0020
+  #if (HVTRAP_ENABLE > 0x00000000)
+    .extern _HVTRAP
+    jr _HVTRAP
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0030
+  #if (FETRAPEX_ENABLE > 0x00000000)
+    .extern _FETRAPEX
+    jr _FETRAPEX
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0040
+  #if (EITRAP0_ENABLE > 0x00000000)
+    .extern _EITRAP0
+    jr _EITRAP0
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0050
+  #if (EITRAP1_ENABLE > 0x00000000)
+    .extern _EITRAP1
+    jr _EITRAP1
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0060
+  #if (RIEX_ENABLE > 0x00000000)
+    .extern _RIEX
+    jr _RIEX
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0080
+  #if (UCPOP_ENABLE > 0x00000000)
+    .extern _UCPOP
+    jr _UCPOP
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0090
+  #if (MIP_MDP_ENABLE > 0x00000000)
+    .extern _MIP_MDP
+    jr _MIP_MDP
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x00a0
+  #if (PIEX_ENABLE > 0x00000000)
+    .extern _PIEX
+    jr _PIEX
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x00c0
+  #if (MAEX_ENABLE > 0x00000000)
+    .extern _MAEX
+    jr _MAEX
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x00e0
+  #if (FENMI_ENABLE > 0x00000000)
+    .extern _FENMI
+    jr _FENMI
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x00f0
+  #if (FEINT_ENABLE > 0x00000000)
+    .extern _FEINT
+    jr _FEINT
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0100
+  #if (EINTPRIO_0_ENABLE > 0x00000000)
+    .extern _EINTPRIO_0
+    jr _EINTPRIO_0
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0110
+  #if (EINTPRIO_1_ENABLE > 0x00000000)
+    .extern _EINTPRIO_1
+    jr _EINTPRIO_1
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0120
+  #if (EINTPRIO_2_ENABLE > 0x00000000)
+    .extern _EINTPRIO_2
+    jr _EINTPRIO_2
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0130
+  #if (EINTPRIO_3_ENABLE > 0x00000000)
+    .extern _EINTPRIO_3
+    jr _EINTPRIO_3
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0140
+  #if (EINTPRIO_4_ENABLE > 0x00000000)
+    .extern _EINTPRIO_4
+    jr _EINTPRIO_4
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0150
+  #if (EINTPRIO_5_ENABLE > 0x00000000)
+    .extern _EINTPRIO_5
+    jr _EINTPRIO_5
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0160
+  #if (EINTPRIO_6_ENABLE > 0x00000000)
+    .extern _EINTPRIO_6
+    jr _EINTPRIO_6
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0170
+  #if (EINTPRIO_7_ENABLE > 0x00000000)
+    .extern _EINTPRIO_7
+    jr _EINTPRIO_7
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0180
+  #if (EINTPRIO_8_ENABLE > 0x00000000)
+    .extern _EINTPRIO_8
+    jr _EINTPRIO_8
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x0190
+  #if (EINTPRIO_9_ENABLE > 0x00000000)
+    .extern _EINTPRIO_9
+    jr _EINTPRIO_9
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x01a0
+  #if (EINTPRIO_10_ENABLE > 0x00000000)
+    .extern _EINTPRIO_10
+    jr _EINTPRIO_10
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x01b0
+  #if (EINTPRIO_11_ENABLE > 0x00000000)
+    .extern _EINTPRIO_11
+    jr _EINTPRIO_11
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x01c0
+  #if (EINTPRIO_12_ENABLE > 0x00000000)
+    .extern _EINTPRIO_12
+    jr _EINTPRIO_12
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x01d0
+  #if (EINTPRIO_13_ENABLE > 0x00000000)
+    .extern _EINTPRIO_13
+    jr _EINTPRIO_13
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x01e0
+  #if (EINTPRIO_14_ENABLE > 0x00000000)
+    .extern _EINTPRIO_14
+    jr _EINTPRIO_14
+  #else
+    jr __unused_isr2
+  #endif
+
+  .offset 0x01f0
+  #if (EINTPRIO_15_ENABLE > 0x00000000)
+    .extern _EINTPRIO_15
+    jr _EINTPRIO_15
+  #else
+    jr __unused_isr2
+  #endif
+
+#endif  /* __OS_HANDLES__ */ 
+#endif  /* __U2A__ */
+#endif  /* NCORES>2 */

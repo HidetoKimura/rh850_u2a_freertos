@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<title>Renesas RH850-U2A Starter Kits</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="w3.css">
+<!-- <link rel="stylesheet" href="tinycolorpicker.css"> -->
+
+<style>
+table {
+text-align: center;
+}
+
+td {
+	<!-- text-align: center; -->
+}
+
+table {
+width: 100%;
+}
+
+td {
+width: 50%;
+}
+</style>
+<script>
+   
+        
+
+    function drawLedsOnCircle(context, centerX, centerY, radius, active) {
+      
+	  const leds	= 16;
+	  const angleStep = (2 * Math.PI) / 20;
+      const rectWidth = 5;
+      const rectHeight = 5;
+
+      for (let i = 0; i < leds; i++) {
+        const angle = i * angleStep + angleStep*12.5;
+        const x = centerX + radius * Math.cos(angle) - rectWidth / 2;
+        const y = centerY + radius * Math.sin(angle) - rectHeight / 2;
+
+        context.beginPath();
+        context.rect(x, y, rectWidth, rectHeight);
+		if (active & (1<<i)) {
+        context.fillStyle = 'blue';
+		context.fill();
+		}
+		else {
+		context.fillStyle = 'lightgrey';
+		context.strokeStyle = 'lightgrey';
+		context.stroke();
+		}
+ 
+      }
+	}
+
+    
+	function drawLeds(context, LEDs) {
+		const leds = 4; // Number of LEDs
+		const rectWidth = 10; // Width of each LED rectangle
+		const rectHeight = 5; // Height of each LED rectangle
+		const offset_x = 30; // X-axis offset for the LED rectangles
+		const offset_y = 20; // Y-axis offset between each LED rectangle
+		const offset_y_initial = 15; // Initial Y-axis offset for the first LED rectangle
+		context.cle
+		for (let i = 0; i < leds; i++) {
+			context.beginPath();
+			context.rect(offset_x, offset_y_initial + offset_y * i, rectWidth, rectHeight);
+			if (LEDs[i] != 0) {
+				// Set fill color based on LED intensity
+				context.fillStyle = 'rgba(0,0,255,' + LEDs[i] / 256 + ')';
+				context.lineWidth = 1;
+				context.strokeStyle = 'lightgrey';
+				context.fill();
+
+				//context.strokeStyle = 'lightgrey';
+			} else {
+				// Set fill color to light grey if LED is off
+				context.strokeStyle = 'lightgrey';
+				context.lineWidth = 1;
+				context.fillStyle = 'white';
+				context.fill();
+				context.stroke();
+			}
+			
+		}
+	}
+
+
+	function drawPoti(context, PotiValue) {
+		const rectWidth = 20;
+		const rectHeight = 80;
+		const offset_x = 20;
+		const offset_y = 10;
+
+		// Draw the background rectangle
+		context.beginPath();
+		context.rect(offset_x, offset_y, rectWidth, rectHeight);
+		
+		context.fillStyle = 'lightgrey';
+		context.strokeStyle = 'lightgrey';
+		context.fill();
+		context.stroke();
+		// Calculate the height of the filled portion based on PotiValue
+		let rectHeightPoti = (PotiValue / 4096) * rectHeight;
+
+		// Draw the filled portion of the rectangle
+		context.beginPath();
+		context.rect(offset_x, offset_y + rectHeight - rectHeightPoti, rectWidth, rectHeightPoti);
+		context.fillStyle = 'blue';
+		context.fill();
+	}
+
+	// Function to draw the center LED
+	function drawCenterLed(context, centerX, centerY, radius, rgb) {
+		context.beginPath();
+		context.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+		context.fillStyle = rgb;
+		context.fill();
+	}
+
+	// Function to paint the canvas with the LED ring, center LED, blue LEDs, and potentiometer
+	function paintCanvas(ring, rgb, BlueLEDs, poti) {
+		// Draw LED ring
+		var canvas = document.getElementById('myCanvasRing');
+		var context = canvas.getContext('2d');
+		context = canvas.getContext('2d');
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		drawLedsOnCircle(context, canvas.width / 2, canvas.height / 2, 40, ring);
+		drawCenterLed(context, canvas.width / 2, canvas.height / 2, 10, rgb);
+
+		// Draw blue LEDs
+		canvas = document.getElementById('myCanvasLeds');
+		context = canvas.getContext('2d');
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		drawLeds(context, BlueLEDs);
+
+		// Draw potentiometer
+		canvas = document.getElementById('myCanvasPoti');
+		context = canvas.getContext('2d');
+		context = canvas.getContext('2d');
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		drawPoti(context, poti);
+	}
+</script>
+<script type="text/javascript">
+
+var picker;
+var timeout=0;
+var time_count=0;
+window.onload = function()
+{
+  // The plain javascript api is very similar to the jquery version with some exceptions.
+  // There is no chaining like in the jquery api. So when you create a instance it
+  // will return all methods and properties.
+  //
+ // var $picker = document.getElementById("colorPicker");
+ // picker  = tinycolorpicker($picker)
+ // ;
+ // picker.setColor("#FFFFFF");
+ // $picker.addEventListener("change", RGBupdate, false); 
+ 
+  setTimeout(update, 50);
+}
+</script>
+
+
+<script>
+function update()
+{
+	if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.open("GET","status.ssi"+'?_=' + new Date().getTime(),false);
+	try {
+		xmlhttp.send();
+	} catch (e) {
+		console.warn("An error occurred while sending the XMLHttpRequest:", e);
+	}
+
+
+	if (xmlhttp.readyState==4 && xmlhttp.status==200)
+	{
+		xml = xmlhttp.responseText;
+        console.log(xml);
+		//Check XML doc
+		
+		var parser = new DOMParser();
+		var xmlDoc = parser.parseFromString(xml,"text/xml");
+		
+        /* calculate runtime */		
+		var runtimeMs = xmlDoc.getElementsByTagName("runtime")[0].textContent;
+		var runtimeSec = Math.floor(runtimeMs / 1000);
+		var minutes = Math.floor(runtimeSec / 60);
+		var seconds = runtimeSec % 60;
+		var runtime = minutes + ":" + seconds ;
+		updateText('runtime',runtime);
+
+	    updateText('frametx',xmlDoc.getElementsByTagName("frx")[0].textContent);
+		updateText('framerx',xmlDoc.getElementsByTagName("ftx")[0].textContent);
+
+        ledring = xmlDoc.getElementsByTagName("ledring")[0].textContent;
+		ledr = xmlDoc.getElementsByTagName("ledr")[0].textContent;
+		ledg = xmlDoc.getElementsByTagName("ledg")[0].textContent;
+		ledb = xmlDoc.getElementsByTagName("ledb")[0].textContent;
+		led4 = xmlDoc.getElementsByTagName("led4")[0].textContent;
+		led5 = xmlDoc.getElementsByTagName("led5")[0].textContent;
+		led6 = xmlDoc.getElementsByTagName("led6")[0].textContent;
+		led7 = xmlDoc.getElementsByTagName("led7")[0].textContent;
+		poti = xmlDoc.getElementsByTagName("poti")[0].textContent;
+		mode = xmlDoc.getElementsByTagName("mode")[0].textContent;
+		var color = 'rgb(' + ledr + ',' + ledg + ',' + ledb + ')';
+		updateModeBtn(mode)
+
+
+		paintCanvas(ledring, color,[led4,led5,led6,led7],poti);
+     
+
+		timeout = 0;
+	}
+	else
+	{
+		timeout +=0.2;
+	}
+	setTimeout(update, 50);
+	
+}
+</script>
+
+<script>
+function cgicommand(parameter)
+{
+
+	if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.open("GET","commands.cgi"+'?' + parameter,true);
+	xmlhttp.send();
+}
+</script>
+
+
+
+
+
+<script>
+function updateText(tname,ttext){
+document.getElementById(tname).innerHTML=ttext;
+}
+</script>
+
+<script>
+function updateTest(pname,result)
+{
+	if (result == 0) {
+		document.getElementById(pname).className="w3-tag w3-green w3-round";
+		document.getElementById(pname).innerHTML="pass";
+	}
+	else
+	{
+		document.getElementById(pname).className="w3-tag w3-red w3-round";
+		document.getElementById(pname).innerHTML="fail";
+	}
+}
+</script>
+
+<script>
+	function updateModeBtn(btnmode)
+	{
+		if (btnmode == 1) {
+		document.getElementById("btnmode1").className="w3-btn w3-rblue w3-text-white";
+		document.getElementById("btnmode2").className="w3-btn w3-grey";
+		}
+		else if(btnmode==2)
+		{
+		document.getElementById("btnmode2").className="w3-btn w3-rblue w3-text-white";
+		document.getElementById("btnmode1").className="w3-btn w3-grey";
+		}else
+		{	
+		document.getElementById("btnmode1").className="w3-btn w3-grey";
+		document.getElementById("btnmode2").className="w3-btn w3-grey";
+		}
+	}
+	</script>
+	
+	<script>
+		function ChangeMode(md)
+		{
+			if (md == 1) {
+				cgicommand("mode=1");
+			}
+			else if (md == 2)
+			{
+				cgicommand("mode=2");
+			}
+			else if (md == 0){
+				cgicommand("mode=reset");
+			}
+			
+		}
+		</script>
+		
+
+<body class="w3-light-grey">
+
+<!-- Page Container -->
+<div class="w3-content w3-margin-top" style="max-width:1400px;">
+
+<!-- The Grid -->
+<div class="w3-row-padding">
+
+<!-- Left Column -->
+<div class="w3-third">
+
+<div class="w3-white w3-text-grey w3-card-4">
+  <div class="w3-display-container">
+  </div>
+  <div class="w3-container">
+    <p><img src="logo_renesas.png"  alt="Renesas">
+    <h2>RH850/U2A Starter Kit</h2></p>
+    <p>Web I/F Demo</p>
+
+
+  </div>
+</div><br>
+
+<div class="w3-white w3-text-grey w3-card-4">
+  <div class="w3-display-container">
+   
+    
+  </div>
+  <div class="w3-container">
+    <p class="w3-large w3-text-theme"></p>
+   
+  <style>
+   img { border-radius: 8px; }
+  </style>
+
+
+  <img id="u2askimg" src="U2A16.jpg" alt="StarterKit U2A16" width="600" height="600"> 
+  </div>
+
+  </div><br>
+      <div class="w3-white w3-text-grey w3-card-4">
+  <div class="w3-display-container">
+   
+    
+  </div>
+  <div class="w3-container">
+    
+     <p class="w3-large w3-text-theme"><b>System Status</b></p>
+     
+      <table style="">
+
+<tr>
+	<td>Runtime:</td>
+	<td><div id="runtime" ></div></td>
+	</tr>
+<tr>
+<td>Frame TX: </td>
+<td><div id="frametx" ></div></td>
+</tr>
+<tr>
+	<td>Frame RX: </td>
+	<td><div id="framerx" ></div></td>
+	</tr>
+<td>
+	
+
+</td>
+
+</tr>
+</table>
+    <br><br>
+
+  </div>
+</div><br>
+<!-- End Left Column -->
+</div>
+
+<!-- Right Column -->
+<div class="w3-twothird">
+
+<div class="w3-container w3-card-2 w3-white w3-margin-bottom">
+ 
+  <div class="w3-container">
+    <h5 class="w3-opacity"><b>Introduction</b></h5>
+    <p>The RH850/U2A Starter Kits serve as a simple and easy to use platform for evaluating the features and performance of Renesas 32-bit RH850/U2A microcontrollers. </p>
+  </div>
+  <div class="w3-container">
+    <h5 class="w3-opacity"><b>Features</b></h5>
+    <p><ul>
+	<li>Connections for on-chip debugging and flash memory programming</li>
+	<li>Pin headers for direct access to most microcontroller pins</li>
+	<li>Serial interface connections for
+	<ul>
+	<li>1x UART USB Serial Connection</li>
+	<li>1x combined LIN/SENT interface</li>
+	<li>2x CAN-FD interfaces</li>
+	<li>2x Ethernet Interfaces (100Base-TX and 1000Base-T1 (U2A16 only))</li>
+	<li>2x PMOD connectors providing I2C/SPI connectivity in various standards</li>
+	</ul>
+	<li>User interaction</li>
+	<ul>
+		<li>16 signal LEDs connected via CSI/LED driver</li>
+		<li>Rotary encoder with RGB LED illuminated shaft</li>
+		<li>One potentiometer for analog signal input</li>
+		<li>Reset switch, two interrupt push buttons</li>
+		<li>128x64 OLED graphic display</li>
+	</ul>
+	<li>SD Card interface</li>
+	</ul></p>
+    <hr>
+  </div>
+</div>
+
+
+
+<div class="w3-container w3-card-2 w3-white w3-margin-bottom">
+	
+	<div class="w3-third">
+		<h4>LED and Poti status:</h4>
+		<canvas id="myCanvasRing" width="100" height="100" >
+			Your browser does not support the HTML5 canvas tag.</canvas>
+		<canvas id="myCanvasLeds" width="50" height="100" >
+			Your browser does not support the HTML5 canvas tag.</canvas>
+		<canvas id="myCanvasPoti" width="50" height="100" >
+			Your browser does not support the HTML5 canvas tag.</canvas>
+	
+
+	</div>
+	<div class="w3-third">	
+		<h4>Mode selection:</h4>
+		<button id="btnmode1" class="w3-btn w3-grey" onclick="ChangeMode(1)" >  Mode 1</button>
+		<button id="btnmode2" class="w3-btn w3-grey" onclick="ChangeMode(2)" >  Mode 2</button>
+	</div>
+	<div class="w3-third">	
+			<h4>System:</h4>
+			<button id="btnreset" class="w3-btn w3-grey" onclick="ChangeMode(0)" >  MCU Reset</button>
+			
+	</div>
+</div>
+
+
+<div class="w3-container w3-card-2 w3-white">
+	<h2 class="w3-text-grey w3-padding-4"><i class="fa  fa-fw w3-margin-right w3-xxlarge w3-text-rblue"></i>Support</h2>
+	<div class="w3-container">
+	<p>E-Mail: <a href="mailto:device_support.u2a-eu@lm.renesas.com ">device_support.u2a-eu@lm.renesas.com</a>
+	<br>Website: <a href="http://www.renesas.com/Y-ASK-RH850U2A">http://www.renesas.com/Y-ASK-RH850U2A</a></p>
+	<hr>
+	</div>
+	
+	</div>
+
+<!-- End Right Column -->
+</div>
+
+<div class="w3-white w3-center w3-text-grey w3-card-4">
+  <div class="w3-display-container">
+  </div>
+  <div class="w3-container">
+	  <style>
+img {
+  max-width: 100%;
+  height: auto;
+}
+</style>
+    <p><h3>Y-ASK-RH850-U2A Starter Kits</h3></p>
+
+  </div>
+</div><br>
+
+
+<!-- End Grid -->
+</div>
+
+<!-- End Page Container -->
+</div>
+
+<footer class="w3-container w3-rblue w3-center w3-margin-top w3-text-white">
+<p>Renesas Electronics Europe</p>
+<p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+</footer>
+
+</body>
+</html>

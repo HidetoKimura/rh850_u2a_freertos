@@ -1,0 +1,7 @@
+DefaultBuild/
+*/DefaultBuild/
+QualityReport*.txt
+*/QualityReport*.txt
+*.mtud
+*/*.mtud
+*.rcpe

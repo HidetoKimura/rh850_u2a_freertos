@@ -1,0 +1,12 @@
+#!gbuild
+macro targetCore=pe3
+[Core]
+	-DCORE3=1
+	-object_dir=objs\pe3
+	-e _RESET_PE3
+apps\apps.gpj
+modules\modules.gpj
+drivers\drivers.gpj
+thirdparty\thirdparty.gpj
+lowsrc\dr7f702300b_startup_PE3.850
+main_pe3.c
